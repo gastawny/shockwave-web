@@ -53,6 +53,18 @@ const config = {
           foreground: 'hsl(var(--card-foreground))',
         },
       },
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+        'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
+        'gradient-ellipse-1':
+          'linear-gradient(90deg, rgba(13,8,85,1) 0%, rgba(9,9,121,1) 35%, rgba(0,212,255,1) 100%)',
+        'gradient-ellipse-2':
+          'linear-gradient(90deg, rgba(35,8,85,1) 0%, rgba(35,9,121,1) 35%, rgba(155,105,236,1) 100%)',
+        'gradient-ellipse-3':
+          'linear-gradient(90deg, rgba(8,60,50,1) 0%, rgba(9,121,105,1) 35%, rgba(50,235,220,1) 100%)',
+        'gradient-ellipse-4':
+          'linear-gradient(90deg, rgba(76,8,85,1) 0%, rgba(114,9,121,1) 35%, rgba(210,105,236,1) 100%)',
+      },
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
