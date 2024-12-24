@@ -1,9 +1,9 @@
-import { API_URL } from '@/config/variables'
 import { cookies } from '@/infra/cookies'
+import { http } from '@/infra/http'
 
 export function useAuth() {
   async function signIn({ username, password }: { username: string; password: string }) {
-    const res = await fetch(`${API_URL}/signin`, {
+    const res = await http('/signin', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
