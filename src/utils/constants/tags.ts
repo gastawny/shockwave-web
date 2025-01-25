@@ -1,1 +1,1 @@
-export const Tags = [''] as const
+export const Tags = ['grounds'] as const

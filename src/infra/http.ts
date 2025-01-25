@@ -4,7 +4,6 @@ import { rTag } from './rTag'
 import { Tags } from '@/utils/constants/tags'
 
 interface RequestOptions extends Omit<RequestInit, 'next'> {
-  tenant?: string
   auth?: boolean
   revalidateTag?: (typeof Tags)[number][]
   tags?: (typeof Tags)[number][]
