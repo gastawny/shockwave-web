@@ -16,15 +16,15 @@ const data = {
   navMain: [
     {
       title: 'Novo Evento',
-      url: 'app/new-event',
+      url: '/app/new-event',
     },
     {
       title: 'Relatórios',
-      url: 'app/reports',
+      url: '/app/reports',
     },
     {
       title: 'POPs',
-      url: 'app/pops',
+      url: '/app/pops',
     },
   ],
 }
