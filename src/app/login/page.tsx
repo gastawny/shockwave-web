@@ -15,6 +15,7 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { onSubmit } from '@/app/login/action'
+import { redirect } from 'next/navigation'
 
 const FormSchema = z.object({
   username: z.string().min(3, {
@@ -35,12 +36,14 @@ export default function LoginPage() {
   })
 
   const action: () => void = form.handleSubmit(async (data) => {
-    await onSubmit(data)
+    // await onSubmit(data)
+
+    redirect('/app')
   })
 
   return (
     <Login.Background className="flex h-screen w-screen p-4">
-      <div className="bg-background/25 shadow-xl p-16 w-2/5 2xl:w-1/3 absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 z-10 rounded-2xl flex justify-center items-center flex-col gap-16">
+      <div className="bg-background/25 shadow-xl p-8 lg:p-16 w-11/12 lg:w-2/5 2xl:w-1/3 absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 z-10 rounded-2xl flex justify-center items-center flex-col gap-16">
         <Form {...form}>
           <form action={action} className="w-full flex flex-col gap-8">
             <div className="flex flex-col gap-5">
