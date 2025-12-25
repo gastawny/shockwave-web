@@ -2,6 +2,9 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { Toaster } from '@/components/ui/toaster'
+import { Loading } from '@/components/loading'
+import { Suspense } from 'react'
+import { Providers } from '@/infra/providers'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -30,7 +33,9 @@ export default function RootLayout({
         `}
       >
         <Toaster />
-        {children}
+        <Providers>
+          <Suspense fallback={<Loading />}>{children}</Suspense>
+        </Providers>
       </body>
     </html>
   )

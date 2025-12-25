@@ -15,7 +15,7 @@ export function useAuth() {
       throw new Error('Credenciais inválidas')
     }
 
-    const data = await res.json()
+    const data = await res.data
 
     cookies.set('access_token', data?.accessToken, { expires: data?.expiration })
     cookies.set('refresh_token', data?.refreshToken, { expires: data?.expiration })

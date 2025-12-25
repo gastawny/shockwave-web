@@ -1,1 +1,7 @@
-export const Tags = ['grounds'] as const
+export const Tags = [
+  'grounds',
+  'explosives',
+  'objectFormats',
+  'formThreats',
+  'locatedObjects',
+] as const

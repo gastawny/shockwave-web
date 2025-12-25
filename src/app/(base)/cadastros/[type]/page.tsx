@@ -18,12 +18,12 @@ export default async function CadastrosPage({ params: { type } }: { params: { ty
 
   const typeObj = registerSlugs[type as keyof typeof registerSlugs]
 
-  const res = await http('/api/grounds', {
+  const res = await http('/api/handlers/grounds', {
     tags: ['grounds'],
   })
   if (!res.ok) console.error('Error fetching data')
 
-  const solos = await res.json()
+  const solos = res.data
 
   return (
     <div className="flex flex-col gap-4">

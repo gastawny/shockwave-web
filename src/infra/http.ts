@@ -2,14 +2,15 @@ import { API_URL } from '@/config/variables'
 import { cookies } from '@/infra/cookies'
 import { rTag } from './rTag'
 import { Tags } from '@/utils/constants/tags'
+import { useLoading } from './providers/loading-provider'
 
-interface RequestOptions extends Omit<RequestInit, 'next'> {
+export interface RequestOptions extends Omit<RequestInit, 'next'> {
   auth?: boolean
   revalidateTag?: (typeof Tags)[number][]
   tags?: (typeof Tags)[number][]
 }
 
-export async function http(
+export async function http<T = any>(
   path: string,
   { auth = true, revalidateTag = [], tags = [], ...options }: RequestOptions = {}
 ) {
@@ -29,5 +30,12 @@ export async function http(
 
   await Promise.all(revalidateTag.map(async (tag) => rTag(tag)))
 
-  return res
+  const converted = await res.json()
+
+  return {
+    ok: res.ok,
+    status: res.status,
+    message: converted?.message,
+    data: converted?.data as T,
+  }
 }

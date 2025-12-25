@@ -25,24 +25,16 @@ import { useState } from 'react'
 import { http } from '@/infra/http'
 import { toast } from '@/components/ui/use-toast'
 import { Plus } from 'lucide-react'
-import { GroundSchema } from '@/types/ground'
+import { Ground, GroundSchema } from '@/types/ground'
 
-interface UpdateGroundProps extends z.infer<typeof GroundSchema> {
-  id: number
-}
-
-export function InputsGround({
-  ground,
-  method,
-}: {
-  ground?: UpdateGroundProps
-  method: 'PUT' | 'POST'
-}) {
+export function InputsGround({ ground, method }: { ground?: Ground; method: 'PUT' | 'POST' }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [loading, setLoading] = useState(false)
 
-  const form = useForm<z.infer<typeof GroundSchema>>({
-    resolver: zodResolver(GroundSchema),
+  const groundSchema = method === 'POST' ? GroundSchema('create') : GroundSchema('update')
+
+  const form = useForm<Ground>({
+    resolver: zodResolver(groundSchema),
     defaultValues: ground,
   })
 
@@ -58,9 +50,12 @@ export function InputsGround({
       data = { ...ground, ...data }
     }
 
-    const res = await http('/api/grounds', {
+    const res = await http('/api/handlers', {
       method,
-      body: JSON.stringify(data),
+      body: JSON.stringify({
+        type: 'grounds',
+        data,
+      }),
       revalidateTag: ['grounds'],
     })
     setLoading(false)

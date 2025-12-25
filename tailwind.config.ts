@@ -97,10 +97,29 @@ const config = {
             height: '0',
           },
         },
+        ring: {
+          '0%': {
+            transform: 'rotate(0deg)',
+            boxShadow: '1px 5px 2px hsl(var(--primary))',
+          },
+          '33%': {
+            transform: 'rotate(120deg)',
+            boxShadow: '1px 5px 2px hsl(var(--secondary))',
+          },
+          '66%': {
+            transform: 'rotate(240deg)',
+            boxShadow: '1px 5px 2px hsl(var(--secondary))',
+          },
+          '100%': {
+            transform: 'rotate(360deg)',
+            boxShadow: '1px 5px 2px hsl(var(--primary))',
+          },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        ring: 'ring 1.2s linear infinite',
       },
     },
   },

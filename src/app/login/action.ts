@@ -11,7 +11,7 @@ export async function onSubmit(data: { username: string; password: string }) {
 
   if (!res.ok) return
 
-  const { accessToken, refreshToken, username } = await res.json()
+  const { accessToken, refreshToken, username } = await res.data
 
   cookies.set('ac', accessToken)
   cookies.set('rf', refreshToken)
