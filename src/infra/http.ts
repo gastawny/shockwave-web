@@ -35,7 +35,6 @@ export async function http<T = any>(
   return {
     ok: res.ok,
     status: res.status,
-    message: converted?.message,
-    data: converted?.data as T,
+    data: converted as T,
   }
 }

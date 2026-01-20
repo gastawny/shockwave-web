@@ -1,44 +1,67 @@
 'use client'
 
 import * as React from 'react'
-import { BookOpen, Bot, Settings2, Library } from 'lucide-react'
-
-import { NavMain } from '@/components/nav-main'
-import { NavUser } from '@/components/nav-user'
-import { Sidebar, SidebarContent, SidebarFooter, SidebarRail } from '@/components/ui/sidebar'
-
-const data = {
-  user: {
-    name: 'shadcn',
-    email: 'm@example.com',
-    avatar: '/avatars/shadcn.jpg',
-  },
-  navMain: [
-    {
-      title: 'Novo Evento',
-      url: '/app/new-event',
-    },
-    {
-      title: 'Relatórios',
-      url: '/app/reports',
-    },
-    {
-      title: 'POPs',
-      url: '/app/pops',
-    },
-  ],
-}
+import { ChevronRight } from 'lucide-react'
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarRail,
+} from '@/components/ui/sidebar'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible'
+import { usePathname } from 'next/navigation'
+import Link from 'next/link'
+import { sideBarData } from '@/utils/data/side-bar-data'
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const pathname = usePathname()
+
+  function matchPath(url: string) {
+    return pathname === url
+  }
+
   return (
-    <Sidebar collapsible="icon" {...props}>
-      <SidebarContent>
-        <NavMain items={data.navMain} />
+    <Sidebar collapsible="offcanvas" {...props}>
+      <SidebarContent className="gap-0">
+        {sideBarData.navMain.map((item) => (
+          <Collapsible
+            key={item.title}
+            title={item.title}
+            defaultOpen={item.defaultOpen || item.items.some((subItem) => matchPath(subItem.url))}
+            className="group/collapsible"
+          >
+            <SidebarGroup>
+              <SidebarGroupLabel
+                asChild
+                className="group/label text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+              >
+                <CollapsibleTrigger>
+                  {item.title}{' '}
+                  <ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
+                </CollapsibleTrigger>
+              </SidebarGroupLabel>
+              <CollapsibleContent>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {item.items.map((item) => (
+                      <SidebarMenuItem key={item.title}>
+                        <SidebarMenuButton asChild isActive={matchPath(item.url)}>
+                          <Link href={item.url}>{item.title}</Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </CollapsibleContent>
+            </SidebarGroup>
+          </Collapsible>
+        ))}
       </SidebarContent>
-      {/* <SidebarFooter>
-        <NavUser user={data.user} />
-      </SidebarFooter> */}
-      <SidebarRail />
     </Sidebar>
   )
 }

@@ -23,7 +23,6 @@ export default function RootLayout({
       <body
         className={`
           ${inter.className}
-          dark
           overflow-y-auto
           [&::-webkit-scrollbar]:w-2
           [&::-webkit-scrollbar-track]:rounded-full

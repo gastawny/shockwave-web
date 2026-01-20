@@ -186,7 +186,7 @@ export default function LocatedObjectForm({ id, onSubmit }: LocatedObjectFormPro
           />
         ))}
         <Button type="submit" className="lg:col-span-2">
-          Salvar
+          {id ? 'Atualizar Objeto Localizado' : 'Criar Objeto Localizado'}
         </Button>
       </form>
     </Form>

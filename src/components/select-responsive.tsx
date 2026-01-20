@@ -19,34 +19,6 @@ import { useQuery } from '@tanstack/react-query'
 import { fetcher } from '@/infra/fetcher'
 import { Tags } from '@/utils/constants/tags'
 
-type Status = {
-  value: string
-  label: string
-}
-
-const statuses: Status[] = [
-  {
-    value: 'backlog',
-    label: 'Backlog',
-  },
-  {
-    value: 'todo',
-    label: 'Todo',
-  },
-  {
-    value: 'in progress',
-    label: 'In Progress',
-  },
-  {
-    value: 'done',
-    label: 'Done',
-  },
-  {
-    value: 'canceled',
-    label: 'Canceled',
-  },
-]
-
 interface SelectResponsiveProps {
   onChange?: (value: string | null) => void
   value: string | null

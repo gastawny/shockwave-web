@@ -36,7 +36,7 @@ import { useLoading } from '@/infra/providers/loading-provider'
 import { Input } from '@/components/ui/input'
 
 export function BombThreatForm() {
-  const { setLoading, loading } = useLoading()
+  const { loading } = useLoading()
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -92,8 +92,6 @@ export function BombThreatForm() {
         form.setValue('objectType', res.data.objectType)
         form.setValue('locatedObject', res.data.locatedObject)
         form.setValue('objectNotFoundDescription', res.data.objectNotFoundDescription)
-
-        console.log('res.data.locatedObject', res.data.locatedObject)
 
         if (res.data.locatedObject === null) {
           form.setValue('objectType', 'not_located')
@@ -162,8 +160,6 @@ export function BombThreatForm() {
     form.setValue('locatedObject', null)
     form.setValue('objectNotFoundDescription', null)
   }
-
-  console.log(form.formState.errors, form.watch())
 
   return (
     <>
