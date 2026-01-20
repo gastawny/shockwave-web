@@ -3,7 +3,7 @@
 import { ColumnDef } from '@/components/data-table/data-table'
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header'
 import { Button } from '@/components/ui/button'
-import { InputsGround } from '@/screens/Cadastos/update-button'
+import { InputsGround } from '@/screens/library/update-button'
 import { http } from '@/infra/http'
 import { toast } from '@/components/ui/use-toast'
 import { Ground } from '@/types/ground'
