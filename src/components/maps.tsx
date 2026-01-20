@@ -56,7 +56,7 @@ const DEFAULT_CONTAINER_STYLE: CSSProperties = {
   height: '100%',
 }
 
-export default function Maps({
+export function Maps({
   initialCenter,
   initialMarker,
   containerStyle,

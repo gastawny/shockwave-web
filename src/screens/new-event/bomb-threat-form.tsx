@@ -292,7 +292,7 @@ export function BombThreatForm() {
                   })
                 }
               >
-                Novo Objeto Localizado
+                Criar
               </Button>
             </TabsContent>
           </Tabs>

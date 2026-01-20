@@ -1,6 +1,6 @@
 'use client'
 
-import Maps, { GeoLocation } from '@/components/maps'
+import { Maps, GeoLocation } from '@/components/maps'
 import { SelectWithDynamicOptions } from '@/components/select-with-dynamic-options'
 import { Button } from '@/components/ui/button'
 import {

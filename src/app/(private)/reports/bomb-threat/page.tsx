@@ -14,9 +14,10 @@ import {
 } from '@/components/ui/table'
 import { API_URL } from '@/config/variables'
 import { fetcher } from '@/infra/fetcher'
-import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
+import { useLoading } from '@/infra/providers/loading-provider'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import { Download } from 'lucide-react'
-import { Suspense, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 
 type BombThreatReport = {
   id: number
@@ -25,6 +26,7 @@ type BombThreatReport = {
 }
 
 export default function ReportsPage() {
+  const { setLoading } = useLoading()
   const [search, setSearch] = useState('')
 
   const { data } = useSuspenseQuery<BombThreatReport[]>({
@@ -72,35 +74,33 @@ export default function ReportsPage() {
       <Card className="h-full">
         <CardContent className="p-6">
           <ScrollArea className="h-full w-full">
-            <Suspense fallback={<div>Carregando...</div>}>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[100px]">Número</TableHead>
-                    <TableHead className="text-right">Data de ocorrência</TableHead>
-                    <TableHead className="text-right w-16"></TableHead>
-                  </TableRow>
-                </TableHeader>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[100px]">Número</TableHead>
+                  <TableHead className="text-right">Data de ocorrência</TableHead>
+                  <TableHead className="text-right w-16"></TableHead>
+                </TableRow>
+              </TableHeader>
 
-                <TableBody>
-                  {filteredData.map((d) => (
-                    <TableRow key={d.id}>
-                      <TableCell className="font-medium">{d.name}</TableCell>
-                      <TableCell className="text-right">{formatDate(d.createdAt)}</TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          onClick={() => handleDownloadReport(d.id)}
-                          variant="outline"
-                          size="icon"
-                        >
-                          <Download />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Suspense>
+              <TableBody>
+                {filteredData.map((d) => (
+                  <TableRow key={d.id}>
+                    <TableCell className="font-medium">{d.name}</TableCell>
+                    <TableCell className="text-right">{formatDate(d.createdAt)}</TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        onClick={() => setLoading(() => handleDownloadReport(d.id))}
+                        variant="outline"
+                        size="icon"
+                      >
+                        <Download />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </ScrollArea>
         </CardContent>
       </Card>

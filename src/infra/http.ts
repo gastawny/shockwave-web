@@ -2,7 +2,6 @@ import { API_URL } from '@/config/variables'
 import { cookies } from '@/infra/cookies'
 import { rTag } from './rTag'
 import { Tags } from '@/utils/constants/tags'
-import { useLoading } from './providers/loading-provider'
 
 export interface RequestOptions extends Omit<RequestInit, 'next'> {
   auth?: boolean

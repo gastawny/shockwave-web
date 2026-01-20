@@ -55,5 +55,14 @@ export const LoadingProvider = ({ children }: { children: ReactNode }) => {
 export const useLoading = () => {
   const { setLoading, loading } = useContext(LoadingContext)
 
-  return { setLoading, loading }
+  const withLoading = async <T,>(asyncFunction: () => Promise<T>): Promise<T> => {
+    setLoading(true)
+    try {
+      return await asyncFunction()
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return { setLoading: withLoading, loading }
 }
