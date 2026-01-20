@@ -25,12 +25,58 @@ const toGeoLocation = (loc?: GeoLocationProps | GeoLocation | null): GeoLocation
 }
 
 interface CircleConfig {
+  label: string
   center?: GeoLocation
   radius: number
   fillColor?: string
   strokeColor?: string
   strokeWeight?: number
   fillOpacity?: number
+}
+
+interface LegendItem {
+  label: string
+  color: string
+}
+
+interface MapLegendProps {
+  items: LegendItem[]
+}
+
+const MapLegend = ({ items }: MapLegendProps) => {
+  if (items.length === 0) {
+    return null
+  }
+
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        bottom: '20px',
+        left: '10px',
+        backgroundColor: 'white',
+        padding: '10px',
+        borderRadius: '5px',
+        boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
+        zIndex: 1,
+      }}
+    >
+      {items.map((item, index) => (
+        <div key={index} style={{ display: 'flex', alignItems: 'center', marginTop: '5px' }}>
+          <div
+            style={{
+              width: '20px',
+              height: '20px',
+              backgroundColor: item.color,
+              marginRight: '10px',
+              border: '1px solid #ccc',
+            }}
+          />
+          <span>{item.label}</span>
+        </div>
+      ))}
+    </div>
+  )
 }
 
 interface MapsComponentProps {
@@ -162,6 +208,7 @@ export function Maps({
   const allMarkers = [...markers, pointA]
 
   const circlesWithDefaults = circles.map((circle) => ({
+    label: circle.label,
     center: circle.center || pointA,
     radius: circle.radius,
     fillColor: circle.fillColor || '#FF0000',
@@ -263,31 +310,34 @@ export function Maps({
   }
 
   return (
-    <GoogleMap
-      mapContainerStyle={mergedContainerStyle}
-      center={center}
-      zoom={zoom}
-      onLoad={handleMapLoad}
-      onUnmount={handleMapUnmount}
-      onClick={handleMapClick}
-      options={mapOptions}
-    >
-      {allMarkers.map((marker, index) => (
-        <Marker key={`marker-${index}`} position={marker} title={`Marcador ${index + 1}`} />
-      ))}
-      {circlesWithDefaults.map((circle, index) => (
-        <Circle
-          key={`circle-${index}`}
-          center={circle.center}
-          radius={circle.radius}
-          options={{
-            fillColor: circle.fillColor,
-            strokeColor: circle.strokeColor,
-            strokeWeight: circle.strokeWeight,
-            fillOpacity: circle.fillOpacity,
-          }}
-        />
-      ))}
-    </GoogleMap>
+    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+      <GoogleMap
+        mapContainerStyle={mergedContainerStyle}
+        center={center}
+        zoom={zoom}
+        onLoad={handleMapLoad}
+        onUnmount={handleMapUnmount}
+        onClick={handleMapClick}
+        options={mapOptions}
+      >
+        {allMarkers.map((marker, index) => (
+          <Marker key={`marker-${index}`} position={marker} title={`Marcador ${index + 1}`} />
+        ))}
+        {circlesWithDefaults.map((circle, index) => (
+          <Circle
+            key={`circle-${index}`}
+            center={circle.center}
+            radius={circle.radius}
+            options={{
+              fillColor: circle.fillColor,
+              strokeColor: circle.strokeColor,
+              strokeWeight: circle.strokeWeight,
+              fillOpacity: circle.fillOpacity,
+            }}
+          />
+        ))}
+      </GoogleMap>
+      <MapLegend items={circlesWithDefaults.map((c) => ({ label: c.label, color: c.fillColor }))} />
+    </div>
   )
 }
