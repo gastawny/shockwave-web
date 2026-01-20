@@ -98,7 +98,7 @@ export function InputsGround({ ground, method }: { ground?: Ground; method: 'PUT
                   <FormItem className="col-span-2">
                     <FormLabel>Nome</FormLabel>
                     <FormControl>
-                      <Input className="border-slate-500" {...field} />
+                      <Input {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -111,7 +111,7 @@ export function InputsGround({ ground, method }: { ground?: Ground; method: 'PUT
                   <FormItem className="row-start-2 col-span-2">
                     <FormLabel>k</FormLabel>
                     <FormControl>
-                      <Input className="border-slate-500" {...field} />
+                      <Input {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

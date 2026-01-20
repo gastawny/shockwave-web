@@ -65,7 +65,7 @@ export default function ReportsPage() {
     <div className="flex flex-col gap-2 h-full">
       <Input
         placeholder="Pesquisar..."
-        className="border-slate-500 lg:w-72"
+        className="lg:w-72"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />

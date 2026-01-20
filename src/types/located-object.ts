@@ -20,6 +20,20 @@ export const LocatedObjectSchema = (method: OptionalIfType) =>
   z.object({
     id: optionalIf(idSchema, method, true),
     name: optionalIf(nameSchema, method),
+    latitude: optionalIf(
+      z.number({
+        required_error: 'Latitude é obrigatória',
+        invalid_type_error: 'Latitude deve ser um número',
+      }),
+      method
+    ),
+    longitude: optionalIf(
+      z.number({
+        required_error: 'Longitude é obrigatória',
+        invalid_type_error: 'Longitude deve ser um número',
+      }),
+      method
+    ),
     explosive: optionalIf(ExplosiveSchema('update_higher'), method),
     ground: optionalIf(GroundSchema('update_higher'), method),
     objectFormat: optionalIf(ObjectFormatSchema('update_higher'), method),

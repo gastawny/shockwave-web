@@ -16,6 +16,7 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { onSubmit } from '@/app/login/action'
 import { redirect } from 'next/navigation'
+import { Card, CardContent } from '@/components/ui/card'
 
 const FormSchema = z.object({
   username: z.string().min(3, {
@@ -42,44 +43,63 @@ export default function LoginPage() {
   })
 
   return (
-    <Login.Background className="flex h-screen w-screen p-4">
-      <div className="bg-background/25 shadow-xl p-8 lg:p-16 w-11/12 lg:w-2/5 2xl:w-1/3 absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 z-10 rounded-2xl flex justify-center items-center flex-col gap-16">
-        <Form {...form}>
-          <form action={action} className="w-full flex flex-col gap-8">
-            <div className="flex flex-col gap-5">
-              <FormField
-                control={form.control}
-                name="username"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Usuário</FormLabel>
-                    <FormControl>
-                      <Input className="border-slate-500" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Senha</FormLabel>
-                    <FormControl>
-                      <Input type="password" className="border-slate-500" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <Button type="submit" size="lg" className="font-bold uppercase tracking-wider">
-              Entrar
-            </Button>
-          </form>
-        </Form>
+    <div className="flex min-h-svh flex-col items-center justify-center bg-muted p-6 md:p-10">
+      <div className="w-full max-w-sm md:max-w-3xl">
+        <div className="flex flex-col gap-6">
+          <Card className="overflow-hidden">
+            <CardContent className="grid p-0 md:grid-cols-2">
+              <Form {...form}>
+                <form action={action} className="p-6 md:p-8">
+                  <div className="flex flex-col gap-6">
+                    <div className="flex flex-col items-center text-center">
+                      <h1 className="text-2xl font-bold">Bem vindo</h1>
+                      <p className="text-muted-foreground">
+                        Realize o login na sua conta Shockwave
+                      </p>
+                    </div>
+                    <FormField
+                      control={form.control}
+                      name="username"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Usuário</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Senha</FormLabel>
+                          <FormControl>
+                            <Input type="password" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <Button type="submit" size="lg" className="font-bold w-full tracking-wider">
+                      Entrar
+                    </Button>
+                  </div>
+                </form>
+              </Form>
+              <div className="relative hidden bg-muted md:block">
+                <img
+                  src="/images/mario.png"
+                  alt="Image"
+                  className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-    </Login.Background>
+    </div>
   )
 }

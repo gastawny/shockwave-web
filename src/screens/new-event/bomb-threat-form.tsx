@@ -34,6 +34,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { fetcher } from '@/infra/fetcher'
 import { useLoading } from '@/infra/providers/loading-provider'
 import { Input } from '@/components/ui/input'
+import { SelectWithDynamicOptions } from '@/components/select-with-dynamic-options'
 
 export function BombThreatForm() {
   const { loading } = useLoading()
@@ -186,14 +187,12 @@ export function BombThreatForm() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Forma de Ameaça</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value?.toString()}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione a Forma de Ameaça" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectDynamicOptions tag="formThreats" />
-                </Select>
+                <SelectWithDynamicOptions
+                  tag="formThreats"
+                  value={field.value?.toString()}
+                  onValueChange={field.onChange}
+                  placeholder="Selecione a Forma de Ameaça"
+                />
                 <FormMessage />
               </FormItem>
             )}
@@ -252,17 +251,13 @@ export function BombThreatForm() {
                     } w-full`}
                   >
                     <FormLabel>Objeto Localizado</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value?.toString()}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione o Objeto Localizado" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectDynamicOptions
-                        tag="locatedObjects"
-                        onRefetchingChange={setIsRefetchingObjectLocated}
-                      />
-                    </Select>
+                    <SelectWithDynamicOptions
+                      tag="locatedObjects"
+                      value={field.value?.toString()}
+                      onValueChange={field.onChange}
+                      placeholder="Selecione o Objeto Localizado"
+                      onRefetchingChange={setIsRefetchingObjectLocated}
+                    />
                     <FormMessage />
                   </FormItem>
                 )}

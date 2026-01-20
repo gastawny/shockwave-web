@@ -12,9 +12,13 @@ import { Separator } from '@/components/ui/separator'
 import { SidebarTrigger } from './ui/sidebar'
 import { usePathname } from 'next/navigation'
 import { sideBarData } from '@/utils/data/side-bar-data'
+import { useTheme } from 'next-themes'
+import { Moon, Sun } from 'lucide-react'
+import { Button } from './ui/button'
 
 export function Header() {
   const pathname = usePathname()
+  const { setTheme, theme } = useTheme()
 
   const item = sideBarData.navMain.find((item) =>
     item.items.find((subItem) => subItem.url === pathname)
@@ -38,6 +42,14 @@ export function Header() {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+          className="ml-auto"
+        >
+          {theme === 'dark' ? <Sun /> : <Moon />}
+        </Button>
       </div>
     </header>
   )

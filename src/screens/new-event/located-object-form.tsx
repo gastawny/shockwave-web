@@ -1,6 +1,7 @@
 'use client'
 
-import { SelectDynamicOptions } from '@/components/select-dynamic-options'
+import Maps, { GeoLocation } from '@/components/maps'
+import { SelectWithDynamicOptions } from '@/components/select-with-dynamic-options'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -11,8 +12,8 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Select, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
+import { Skeleton } from '@/components/ui/skeleton'
 import { http } from '@/infra/http'
 import { LocatedObjectSchema, LocatedObject } from '@/types/located-object'
 import { ObjectFormatParameter } from '@/types/object-format-parameter'
@@ -32,6 +33,8 @@ export default function LocatedObjectForm({ id, onSubmit }: LocatedObjectFormPro
     resolver: zodResolver(locatedObjectSchema),
     defaultValues: {
       name: '',
+      latitude: undefined,
+      longitude: undefined,
       explosive: undefined,
       ground: undefined,
       objectFormat: undefined,
@@ -56,6 +59,8 @@ export default function LocatedObjectForm({ id, onSubmit }: LocatedObjectFormPro
         form.setValue('explosive', res.data.explosive)
         form.setValue('ground', res.data.ground)
         form.setValue('objectFormat', res.data.objectFormat)
+        form.setValue('latitude', res.data.latitude)
+        form.setValue('longitude', res.data.longitude)
 
         if (res.data.objectFormatParameterValues?.length) {
           replace(res.data.objectFormatParameterValues)
@@ -86,6 +91,11 @@ export default function LocatedObjectForm({ id, onSubmit }: LocatedObjectFormPro
     onChange(event)
   }
 
+  async function handleMarker(event: GeoLocation) {
+    form.setValue('latitude', event.lat)
+    form.setValue('longitude', event.lng)
+  }
+
   return (
     <Form {...form}>
       <form
@@ -110,14 +120,12 @@ export default function LocatedObjectForm({ id, onSubmit }: LocatedObjectFormPro
           render={({ field }) => (
             <FormItem>
               <FormLabel>Tipo de Explosivo</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value?.toString()}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o tipo de explosivo" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectDynamicOptions tag="explosives" />
-              </Select>
+              <SelectWithDynamicOptions
+                tag="explosives"
+                value={field.value?.toString()}
+                onValueChange={field.onChange}
+                placeholder="Selecione o tipo de explosivo"
+              />
               <FormMessage />
             </FormItem>
           )}
@@ -129,14 +137,12 @@ export default function LocatedObjectForm({ id, onSubmit }: LocatedObjectFormPro
           render={({ field }) => (
             <FormItem>
               <FormLabel>Tipo de Solo</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value?.toString()}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o tipo de solo" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectDynamicOptions tag="grounds" />
-              </Select>
+              <SelectWithDynamicOptions
+                tag="grounds"
+                value={field.value?.toString()}
+                onValueChange={field.onChange}
+                placeholder="Selecione o tipo de solo"
+              />
               <FormMessage />
             </FormItem>
           )}
@@ -148,17 +154,12 @@ export default function LocatedObjectForm({ id, onSubmit }: LocatedObjectFormPro
           render={({ field }) => (
             <FormItem>
               <FormLabel>Formato do objeto</FormLabel>
-              <Select
-                onValueChange={(e) => objectFormatChange(e, field.onChange)}
+              <SelectWithDynamicOptions
+                tag="objectFormats"
                 value={field.value?.toString()}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o formato do objeto" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectDynamicOptions tag="objectFormats" />
-              </Select>
+                onValueChange={(e) => objectFormatChange(e, field.onChange)}
+                placeholder="Selecione o formato do objeto"
+              />
               <FormMessage />
             </FormItem>
           )}
@@ -185,6 +186,15 @@ export default function LocatedObjectForm({ id, onSubmit }: LocatedObjectFormPro
             )}
           />
         ))}
+        <Separator className="lg:col-span-2" />
+        <div className="rounded-md bg-primary/10 h-96 w-full lg:col-span-2">
+          <Maps
+            onMarkerChange={(e) => handleMarker(e)}
+            initialMarker={{ lat: form.getValues('latitude'), lng: form.getValues('longitude') }}
+            initialCenter={{ lat: form.getValues('latitude'), lng: form.getValues('longitude') }}
+          />
+        </div>
+        <Separator className="lg:col-span-2" />
         <Button type="submit" className="lg:col-span-2">
           {id ? 'Atualizar Objeto Localizado' : 'Criar Objeto Localizado'}
         </Button>
