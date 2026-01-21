@@ -1,18 +1,8 @@
 'use client'
 
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form'
-import { Select, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { SelectDynamicOptions } from '@/components/select-dynamic-options'
+import { Form, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { BombThreat, BombThreatSchema } from '@/types/bomb-threat'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { http } from '@/infra/http'
 import { toast } from '@/components/ui/use-toast'
@@ -36,12 +26,13 @@ import { useLoading } from '@/infra/providers/loading-provider'
 import { Input } from '@/components/ui/input'
 import { SelectWithDynamicOptions } from '@/components/select-with-dynamic-options'
 
-export function BombThreatForm() {
+type BombThreatFormProps = {
+  id?: string | null
+  onSubmit: (data: BombThreat) => void
+}
+
+export function BombThreatForm({ id, onSubmit }: BombThreatFormProps) {
   const { loading } = useLoading()
-  const router = useRouter()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
-  const id = searchParams.get('id')
 
   const [isRefetchingObjectLocated, setIsRefetchingObjectLocated] = useState(false)
   const [modalObjectLocated, setModalObjectLocated] = useState({
@@ -102,39 +93,6 @@ export function BombThreatForm() {
       }
     })()
   }, [id])
-
-  async function onSubmit(data: BombThreat) {
-    const res = await http('/api/handlers', {
-      method: id ? 'PUT' : 'POST',
-      body: JSON.stringify({
-        type: 'bombThreats',
-        data: { ...data, objectType: undefined },
-      }),
-    })
-
-    if (!res.ok) {
-      toast({
-        title: 'Erro',
-        description: id
-          ? 'Não foi possível atualizar a ameaça de bomba'
-          : 'Não foi possível criar a ameaça de bomba',
-        variant: 'destructive',
-      })
-
-      return
-    }
-
-    toast({
-      title: 'Sucesso',
-      description: id
-        ? 'Ameaça de bomba atualizada com sucesso'
-        : 'Ameaça de bomba criada com sucesso',
-    })
-
-    if (!id) {
-      router.push(`${pathname}?id=${res.data.id}`)
-    }
-  }
 
   async function onSuccessSubmitLocatedObject(data: any, variables: LocatedObject) {
     await queryClient.refetchQueries({

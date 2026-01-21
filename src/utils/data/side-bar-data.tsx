@@ -25,52 +25,16 @@ export const sideBarData = {
       url: '/library',
       items: [
         {
-          title: 'Routing',
-          url: '#',
+          title: 'Tipos de Solo',
+          url: '/library/grounds',
         },
         {
-          title: 'Data Fetching',
-          url: '#',
+          title: 'Formatos de Objeto',
+          url: '/library/objectFormats',
         },
         {
-          title: 'Rendering',
-          url: '#',
-        },
-        {
-          title: 'Caching',
-          url: '#',
-        },
-        {
-          title: 'Styling',
-          url: '#',
-        },
-        {
-          title: 'Optimizing',
-          url: '#',
-        },
-        {
-          title: 'Configuring',
-          url: '#',
-        },
-        {
-          title: 'Testing',
-          url: '#',
-        },
-        {
-          title: 'Authentication',
-          url: '#',
-        },
-        {
-          title: 'Deploying',
-          url: '#',
-        },
-        {
-          title: 'Upgrading',
-          url: '#',
-        },
-        {
-          title: 'Examples',
-          url: '#',
+          title: 'Formas de Ameaça',
+          url: '/library/formThreats',
         },
       ],
     },

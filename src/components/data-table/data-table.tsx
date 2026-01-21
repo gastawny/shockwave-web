@@ -15,12 +15,16 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table'
-
 import { DataTablePagination } from './data-table-pagination'
 import { DataTableToolbar, FilterDef } from './data-table-toolbar'
 import { cn } from '../../lib/utils'
+import { Tags } from '@/utils/constants/tags'
+import { infosModal } from '@/screens/library/infos-modal'
+import { Button } from '../ui/button'
+import { useQueryClient, useMutation } from '@tanstack/react-query'
+import { fetcher } from '@/infra/fetcher'
+import { toast } from '../ui/use-toast'
 
 export type { ColumnDef }
 
@@ -36,6 +40,7 @@ export interface DataTableProps<TData, TValue> {
     createButton: React.ReactNode
   }
   className?: React.HTMLAttributes<HTMLDivElement>['className']
+  type: (typeof Tags)[number]
 }
 
 export function DataTable<TData, TValue>({
@@ -43,6 +48,7 @@ export function DataTable<TData, TValue>({
   data,
   dataFilters,
   className,
+  type,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
@@ -69,6 +75,26 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
+  })
+
+  const queryClient = useQueryClient()
+  const mutation = useMutation({
+    mutationFn: async ({ tag, id }: { tag: (typeof Tags)[number]; id: number }) => {
+      const res = await fetcher(`/api/handlers/${tag}/${id}`, { method: 'DELETE' })
+
+      if (!res.ok) {
+        throw new Error('Error deleting item')
+      }
+    },
+    onSuccess: (_, params) => {
+      queryClient.invalidateQueries({ queryKey: ['library', params.tag] })
+      queryClient.invalidateQueries({ queryKey: ['select-dynamic-options', params.tag] })
+
+      toast({ title: 'Excluído com sucesso' })
+    },
+    onError: () => {
+      toast({ variant: 'destructive', title: 'Erro ao excluir' })
+    },
   })
 
   return (
@@ -100,6 +126,16 @@ export function DataTable<TData, TValue>({
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
+                  <TableCell className="flex gap-2 justify-end">
+                    {infosModal[type]({ method: 'PUT', ground: row.original })}
+                    <Button
+                      onClick={() => mutation.mutate({ tag: type, id: (row.original as any).id })}
+                      variant="destructive"
+                      size="sm"
+                    >
+                      Excluir
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))
             ) : (

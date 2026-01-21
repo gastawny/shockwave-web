@@ -1,22 +1,24 @@
 'use client'
 
 import { DataTable } from '@/components/data-table/data-table'
-import { InputsGround } from '@/screens/library/update-button'
-import { columns } from '@/utils/data/register-definitions/ground-columns'
+import { infosModal } from '@/screens/library/infos-modal'
+import { Tags } from '@/utils/constants/tags'
+import { columnsDefinitions } from '@/utils/data/columns-definitions/'
 
-export function RegisterTable({ data }: any) {
+export function RegisterTable({ data, type }: { data: any[]; type: (typeof Tags)[number] }) {
   return (
     <DataTable
       data={data}
-      columns={columns}
+      columns={columnsDefinitions[type]}
       dataFilters={{
         filters: [],
         principalColumn: {
           key: 'name',
           title: 'Nome',
         },
-        createButton: <InputsGround method="POST" />,
+        createButton: infosModal[type]({ method: 'POST' }),
       }}
+      type={type}
     />
   )
 }

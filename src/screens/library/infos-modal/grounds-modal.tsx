@@ -10,7 +10,6 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
@@ -21,15 +20,49 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { useState } from 'react'
-import { http } from '@/infra/http'
+import { useEffect, useState } from 'react'
 import { toast } from '@/components/ui/use-toast'
 import { Plus } from 'lucide-react'
 import { Ground, GroundSchema } from '@/types/ground'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { fetcher } from '@/infra/fetcher'
 
-export function InputsGround({ ground, method }: { ground?: Ground; method: 'PUT' | 'POST' }) {
+export interface GroundsModalProps {
+  method: 'PUT' | 'POST'
+  ground?: Ground
+}
+
+export function GroundsModal({ ground, method }: GroundsModalProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [loading, setLoading] = useState(false)
+
+  const queryClient = useQueryClient()
+  const mutation = useMutation({
+    mutationKey: ['grounds', method],
+    mutationFn: async (data: Ground) => {
+      const res = await fetcher('/api/handlers', {
+        method,
+        body: JSON.stringify({
+          type: 'grounds',
+          data,
+        }),
+      })
+
+      if (!res.ok) throw new Error('Error in mutation')
+
+      form.reset()
+      setIsDialogOpen(false)
+    },
+    onSuccess: () => {
+      queryClient.refetchQueries({ queryKey: ['library', 'grounds'] })
+      toast({ title: `Solo ${method === 'POST' ? 'criado' : 'atualizado'} com sucesso` })
+    },
+    onError: () => {
+      toast({
+        variant: 'destructive',
+        title: `Erro ao ${method === 'POST' ? 'criar' : 'editar'} solo`,
+      })
+    },
+  })
 
   const groundSchema = method === 'POST' ? GroundSchema('create') : GroundSchema('update')
 
@@ -38,37 +71,16 @@ export function InputsGround({ ground, method }: { ground?: Ground; method: 'PUT
     defaultValues: ground,
   })
 
+  useEffect(() => {
+    form.reset(ground)
+  }, [ground, form])
+
   function handleCancel() {
     form.reset()
     setIsDialogOpen(false)
   }
 
-  const onSubmit = form.handleSubmit(async (data) => {
-    setLoading(true)
-
-    if (method === 'PUT') {
-      data = { ...ground, ...data }
-    }
-
-    const res = await http('/api/handlers', {
-      method,
-      body: JSON.stringify({
-        type: 'grounds',
-        data,
-      }),
-      revalidateTag: ['grounds'],
-    })
-    setLoading(false)
-
-    if (!res.ok) {
-      toast({ variant: 'destructive', title: 'Erro ao editar solo' })
-      return
-    }
-
-    toast({ title: 'Solo atualizado com sucesso' })
-    form.reset()
-    setIsDialogOpen(false)
-  })
+  const onSubmit = form.handleSubmit((data) => mutation.mutate(data))
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -122,7 +134,7 @@ export function InputsGround({ ground, method }: { ground?: Ground; method: 'PUT
               <Button type="button" variant="outline" onClick={handleCancel}>
                 Cancelar
               </Button>
-              <Button type="submit" disabled={loading}>
+              <Button type="submit" disabled={mutation.isPending}>
                 {method === 'PUT' ? 'Atualizar' : 'Criar'}
               </Button>
             </DialogFooter>

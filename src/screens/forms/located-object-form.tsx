@@ -5,19 +5,19 @@ import { SelectWithDynamicOptions } from '@/components/select-with-dynamic-optio
 import { Button } from '@/components/ui/button'
 import {
   Form,
-  FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
+  useFormField,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
-import { Skeleton } from '@/components/ui/skeleton'
 import { http } from '@/infra/http'
 import { LocatedObjectSchema, LocatedObject } from '@/types/located-object'
 import { ObjectFormatParameter } from '@/types/object-format-parameter'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Divide } from 'lucide-react'
 import { useEffect } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 
@@ -46,6 +46,8 @@ export default function LocatedObjectForm({ id, onSubmit }: LocatedObjectFormPro
     control: form.control,
     name: 'objectFormatParameterValues',
   })
+
+  const latError = form.formState.errors.latitude
 
   useEffect(() => {
     ;(async () => {
@@ -95,6 +97,8 @@ export default function LocatedObjectForm({ id, onSubmit }: LocatedObjectFormPro
     form.setValue('latitude', event.lat)
     form.setValue('longitude', event.lng)
   }
+
+  console.log(form.formState.errors)
 
   return (
     <Form {...form}>
@@ -187,12 +191,11 @@ export default function LocatedObjectForm({ id, onSubmit }: LocatedObjectFormPro
           />
         ))}
         <Separator className="lg:col-span-2" />
+        {latError && (
+          <p className="text-[0.8rem] font-medium text-destructive">Marque a localização no mapa</p>
+        )}
         <div className="rounded-md bg-primary/10 h-96 w-full lg:col-span-2">
-          <Maps
-            onMarkerChange={(e) => handleMarker(e)}
-            initialMarker={{ lat: form.getValues('latitude'), lng: form.getValues('longitude') }}
-            initialCenter={{ lat: form.getValues('latitude'), lng: form.getValues('longitude') }}
-          />
+          <Maps onMarkerChange={(e) => handleMarker(e)} />
         </div>
         <Separator className="lg:col-span-2" />
         <Button type="submit" className="lg:col-span-2">

@@ -1,5 +1,5 @@
-import { BombThreatForm } from '@/screens/new-event/bomb-threat-form'
+import { BombThreatRegister } from '@/screens/new-event/bomb-threat-register'
 
 export default function BombThreatPage() {
-  return <BombThreatForm />
+  return <BombThreatRegister />
 }
