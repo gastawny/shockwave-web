@@ -10,11 +10,11 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
-import { BombThreatForm } from '@/screens/new-event/bomb-threat-form'
 import { LocatedObjectRegister } from '@/screens/new-event/located-object-register'
+import { BombThreatRegister } from '@/screens/new-event/bomb-threat-register'
 
 const eventOptions = [
-  { value: '1', label: 'Ameaça de Bomba', url: <BombThreatForm /> },
+  { value: '1', label: 'Ameaça de Bomba', url: <BombThreatRegister /> },
   { value: '2', label: 'Objeto Localizado', url: <LocatedObjectRegister /> },
   // { value: '3', label: 'Pós-Explosão', component: <PosComponent /> },
 ]

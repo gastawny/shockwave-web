@@ -2,7 +2,7 @@ import { toast } from '@/components/ui/use-toast'
 import { http } from '@/infra/http'
 import { LocatedObject } from '@/types/located-object'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import LocatedObjectForm from './located-object-form'
+import LocatedObjectForm from '@/screens/forms/located-object-form'
 
 export function LocatedObjectRegister() {
   const router = useRouter()

@@ -115,11 +115,10 @@ export function Maps({
   isMarkerLocked = false,
 }: MapsComponentProps) {
   const initialCenterValue = toGeoLocation(initialCenter) || DEFAULT_CENTER
-  const initialMarkerValue =
-    toGeoLocation(initialMarker) || toGeoLocation(initialCenter) || DEFAULT_CENTER
+  const initialMarkerValue = toGeoLocation(initialMarker) || toGeoLocation(initialCenter)
 
   const [center, setCenter] = useState<GeoLocation>(initialCenterValue)
-  const [pointA, setPointA] = useState<GeoLocation>(initialMarkerValue)
+  const [pointA, setPointA] = useState<GeoLocation | null>(initialMarkerValue)
   const [map, setMap] = useState<google.maps.Map | null>(null)
 
   const { theme } = useTheme()

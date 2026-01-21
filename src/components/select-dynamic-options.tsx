@@ -13,9 +13,9 @@ interface SelectDynamicOptionsProps {
 }
 
 export function SelectDynamicOptions({ tag, onRefetchingChange }: SelectDynamicOptionsProps) {
-  const { data, isRefetching } = useQuery({
+  const { data, isRefetching } = useQuery<GenericList[]>({
     queryKey: ['select-dynamic-options', tag],
-    queryFn: async () => await fetcher<GenericList[]>(`/api/handlers/${tag}/find2Select`),
+    queryFn: async () => await fetcher(`/api/handlers/${tag}/find2Select`),
     staleTime: 60 * 1000,
   })
 

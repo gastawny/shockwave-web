@@ -42,9 +42,9 @@ export function SelectResponsive({
   const isDesktop = useMediaQuery('(min-width: 768px)')
   const [selectedStatus, setSelectedStatus] = React.useState<GenericList | null>(null)
 
-  const { data, isRefetching } = useQuery({
+  const { data, isRefetching } = useQuery<GenericList[]>({
     queryKey: ['select-dynamic-options', tag],
-    queryFn: async () => await fetcher<GenericList[]>(`/api/handlers/${tag}`),
+    queryFn: async () => await fetcher(`/api/handlers/${tag}`),
     staleTime: 60 * 1000,
   })
 
