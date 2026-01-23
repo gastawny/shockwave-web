@@ -31,7 +31,7 @@ export default function ReportsPage() {
 
   const { data } = useSuspenseQuery<BombThreatReport[]>({
     queryKey: ['reports', 'bombThreats'],
-    queryFn: async () => await fetcher('/api/reports/bombThreats'),
+    queryFn: async () => await fetcher('/api/reports/bombThreats', { justReturnResponse: false }),
   })
 
   const filteredData = useMemo(() => {

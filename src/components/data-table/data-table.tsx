@@ -32,10 +32,6 @@ export interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   dataFilters: {
-    principalColumn: {
-      key: keyof TData
-      title: string
-    }
     filters: FilterDef[]
     createButton: React.ReactNode
   }
@@ -127,14 +123,16 @@ export function DataTable<TData, TValue>({
                     </TableCell>
                   ))}
                   <TableCell className="flex gap-2 justify-end">
-                    {infosModal[type]({ method: 'PUT', ground: row.original })}
-                    <Button
-                      onClick={() => mutation.mutate({ tag: type, id: (row.original as any).id })}
-                      variant="destructive"
-                      size="sm"
-                    >
-                      Excluir
-                    </Button>
+                    {infosModal[type]({ method: 'PUT', data: row.original })}
+                    {!['objectFormats'].includes(type) && (
+                      <Button
+                        onClick={() => mutation.mutate({ tag: type, id: (row.original as any).id })}
+                        variant="destructive"
+                        size="sm"
+                      >
+                        Excluir
+                      </Button>
+                    )}
                   </TableCell>
                 </TableRow>
               ))

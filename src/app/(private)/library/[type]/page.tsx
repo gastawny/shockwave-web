@@ -1,9 +1,11 @@
 'use client'
 
-import { RegisterTable } from './register-table'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { fetcher } from '@/infra/fetcher'
 import { Tags } from '@/utils/constants/tags'
+import { DataTable } from '@/components/data-table/data-table'
+import { columnsDefinitions } from '@/screens/library/columns-definitions'
+import { infosModal } from '@/screens/library/infos-modal'
 
 export default function LibraryTypePage({
   params: { type },
@@ -15,5 +17,15 @@ export default function LibraryTypePage({
     queryFn: async () => await fetcher(`/api/handlers/${type}`, { justReturnResponse: false }),
   })
 
-  return <RegisterTable data={data} type={type} />
+  return (
+    <DataTable
+      data={data}
+      columns={columnsDefinitions[type]}
+      dataFilters={{
+        filters: [],
+        createButton: infosModal[type]({ method: 'POST' }),
+      }}
+      type={type}
+    />
+  )
 }

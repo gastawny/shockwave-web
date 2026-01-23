@@ -9,6 +9,7 @@ export const columnsGround: ColumnDef<Ground>[] = [
     cell: ({ row }) => {
       return <span className="max-w-[350px] truncate font-medium">{row.getValue('name')}</span>
     },
+    footer: 'Nome',
   },
   {
     accessorKey: 'k',
@@ -17,7 +18,9 @@ export const columnsGround: ColumnDef<Ground>[] = [
       return <span className="max-w-[350px] truncate font-medium">{row.getValue('k')}</span>
     },
     filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id))
+      const cell = String(row.getValue(id) ?? '')
+      const filter = String(value ?? '')
+      return cell.toLowerCase().includes(filter.toLowerCase())
     },
   },
 ]

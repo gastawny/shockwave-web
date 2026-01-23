@@ -24,12 +24,12 @@ export function DataTableViewOptions<TData>({
   createButton,
 }: DataTableViewOptionsProps<TData>) {
   return (
-    <>
+    <div className="flex items-center flex-col lg:flex-row gap-2 w-full lg:w-auto">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm" className="ml-auto hidden h-8 lg:flex">
+          <Button variant="outline" className="ml-auto h-8 flex w-full">
             <MixerHorizontalIcon className="mr-1 h-4 w-4" />
-            Vizualizar
+            Visualizar
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-[175px]">
@@ -53,6 +53,6 @@ export function DataTableViewOptions<TData>({
         </DropdownMenuContent>
       </DropdownMenu>
       {createButton}
-    </>
+    </div>
   )
 }

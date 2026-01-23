@@ -17,8 +17,10 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collap
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { sideBarData } from '@/utils/data/side-bar-data'
+import { useUserStore } from '@/infra/stores/user-store-provider'
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { user } = useUserStore()
   const pathname = usePathname()
 
   function matchPath(url: string) {
@@ -48,13 +50,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <CollapsibleContent>
                 <SidebarGroupContent>
                   <SidebarMenu>
-                    {item.items.map((item) => (
-                      <SidebarMenuItem key={item.title}>
-                        <SidebarMenuButton asChild isActive={matchPath(item.url)}>
-                          <Link href={item.url}>{item.title}</Link>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    ))}
+                    {item.items.map((item) => {
+                      if (item.admin === true) {
+                        if (!user?.roles?.includes('MANAGER')) {
+                          return null
+                        }
+                      }
+
+                      return (
+                        <SidebarMenuItem key={item.title}>
+                          <SidebarMenuButton asChild isActive={matchPath(item.url)}>
+                            <Link href={item.url}>{item.title}</Link>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      )
+                    })}
                   </SidebarMenu>
                 </SidebarGroupContent>
               </CollapsibleContent>

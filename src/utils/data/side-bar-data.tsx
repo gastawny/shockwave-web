@@ -36,6 +36,27 @@ export const sideBarData = {
           title: 'Formas de Ameaça',
           url: '/library/formThreats',
         },
+        {
+          title: 'Explosivos',
+          url: '/library/explosives',
+        },
+        {
+          title: 'Objetos Localizados',
+          url: '/library/locatedObjects',
+        },
+        {
+          title: 'Ameaças de Bomba',
+          url: '/library/bombThreats',
+        },
+        {
+          title: 'POPs',
+          url: '/library/pops',
+        },
+        {
+          title: 'Usuários',
+          url: '/library/users',
+          admin: true,
+        },
       ],
     },
     {
@@ -50,25 +71,6 @@ export const sideBarData = {
         {
           title: 'Ameaças de Bomba',
           url: '/reports/bomb-threat',
-        },
-      ],
-    },
-    {
-      title: 'POPs',
-      defaultOpen: false,
-      url: '/pops',
-      items: [
-        {
-          title: '200.6 - Ameaça de Bomba',
-          url: '#',
-        },
-        {
-          title: '200.7 - Objeto Localizado',
-          url: '#',
-        },
-        {
-          title: '200.8 - Explosão de Bomba',
-          url: '#',
         },
       ],
     },

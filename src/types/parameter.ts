@@ -11,6 +11,7 @@ export const ParameterSchema = (method: OptionalIfType) =>
     symbol: optionalIf(stringSchema, method),
     name: optionalIf(stringSchema, method),
     unit: optionalIf(stringSchema, method),
+    value_type: optionalIf(z.enum(['STRING', 'NUMBER', 'TEXT']), method),
   })
 const parameter = ParameterSchema('update')
 export type Parameter = z.infer<typeof parameter>

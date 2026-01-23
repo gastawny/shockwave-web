@@ -13,33 +13,77 @@ import {
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { onSubmit } from '@/app/login/action'
-import { redirect } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { Card, CardContent } from '@/components/ui/card'
+import { PasswordInput } from '@/components/ui/password-input'
+import { useUserStore } from '@/infra/stores/user-store-provider'
+import { useMutation } from '@tanstack/react-query'
+import { fetcher } from '@/infra/fetcher'
+import { useState } from 'react'
+import { Token } from '@/types/token'
+import { cookies } from '@/infra/cookies'
 
 const FormSchema = z.object({
-  username: z.string().min(3, {
-    message: 'O nome de usuário deve ter no mínimo 3 caracteres',
+  email: z.string().email({
+    message: 'Email inválido',
   }),
-  password: z.string().min(3, {
-    message: 'A senha deve ter no mínimo 3 caracteres',
+  password: z.string().min(8, {
+    message: 'A senha deve ter no mínimo 8 caracteres',
   }),
 })
 
 export default function LoginPage() {
+  const [errMessage, setErrMessage] = useState('')
+  const { setUser } = useUserStore()
+  const router = useRouter()
+  const mutation = useMutation<Token, Error, z.infer<typeof FormSchema>>({
+    mutationFn: async (data) => {
+      const res = await fetcher('/auth/signin', {
+        method: 'POST',
+        body: JSON.stringify(data),
+        justReturnResponse: true,
+      })
+
+      if (!res.ok) {
+        const text = await res.text()
+        throw new Error(text || 'Erro ao autenticar')
+      }
+
+      const json = (await res.json()) as Token
+      return json
+    },
+    onSuccess: async (data) => {
+      setUser(data.user)
+
+      cookies.set('at', data.accessToken, {
+        expires: data.expiration,
+        secure: true,
+      })
+      cookies.set('rt', data.refreshToken, {
+        expires: data.expiration,
+        secure: true,
+      })
+      await cookies.set('e', data.user.email ?? '', {
+        expires: data.expiration,
+        secure: true,
+      })
+
+      router.push('/')
+    },
+    onError: (e) => {
+      setErrMessage('Erro ao fazer login. Verifique suas credenciais e tente novamente.')
+    },
+  })
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      username: '',
+      email: '',
       password: '',
     },
   })
 
-  const action: () => void = form.handleSubmit(async (data) => {
-    // await onSubmit(data)
-
-    redirect('/app')
-  })
+  const onSubmit = form.handleSubmit((data) => mutation.mutate(data))
 
   return (
     <div className="flex min-h-svh flex-col items-center justify-center bg-muted p-6 md:p-10">
@@ -48,7 +92,7 @@ export default function LoginPage() {
           <Card className="overflow-hidden">
             <CardContent className="grid p-0 md:grid-cols-2">
               <Form {...form}>
-                <form action={action} className="p-6 md:p-8">
+                <form onSubmit={onSubmit} className="p-6 md:p-8">
                   <div className="flex flex-col gap-6">
                     <div className="flex flex-col items-center text-center">
                       <h1 className="text-2xl font-bold">Bem vindo</h1>
@@ -58,12 +102,12 @@ export default function LoginPage() {
                     </div>
                     <FormField
                       control={form.control}
-                      name="username"
+                      name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Usuário</FormLabel>
+                          <FormLabel>E-mail</FormLabel>
                           <FormControl>
-                            <Input {...field} />
+                            <Input type="email" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -76,12 +120,13 @@ export default function LoginPage() {
                         <FormItem>
                           <FormLabel>Senha</FormLabel>
                           <FormControl>
-                            <Input type="password" {...field} />
+                            <PasswordInput {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
+                    {errMessage && <p className="text-red-500 text-sm">{errMessage}</p>}
                     <Button type="submit" size="lg" className="font-bold w-full tracking-wider">
                       Entrar
                     </Button>
@@ -92,7 +137,7 @@ export default function LoginPage() {
                 <img
                   src="/images/mario.png"
                   alt="Image"
-                  className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+                  className="absolute inset-0 h-full w-full object-cover"
                 />
               </div>
             </CardContent>

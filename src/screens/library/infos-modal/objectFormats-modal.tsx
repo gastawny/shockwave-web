@@ -23,26 +23,26 @@ import {
 import { useEffect, useState } from 'react'
 import { toast } from '@/components/ui/use-toast'
 import { Plus } from 'lucide-react'
-import { Ground, GroundSchema } from '@/types/ground'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { fetcher } from '@/infra/fetcher'
+import { ObjectFormat, ObjectFormatSchema } from '@/types/object-format'
 
-export interface GroundsModalProps {
+export interface ObjectFormatsModalProps {
   method: 'PUT' | 'POST'
-  data?: Ground
+  data?: ObjectFormat
 }
 
-export function GroundsModal({ data, method }: GroundsModalProps) {
+export function ObjectFormatsModal({ data, method }: ObjectFormatsModalProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const queryClient = useQueryClient()
   const mutation = useMutation({
-    mutationKey: ['grounds', method],
-    mutationFn: async (data: Ground) => {
+    mutationKey: ['objectFormats', method],
+    mutationFn: async (data: ObjectFormat) => {
       const res = await fetcher('/api/handlers', {
         method,
         body: JSON.stringify({
-          type: 'grounds',
+          type: 'objectFormats',
           data,
         }),
       })
@@ -61,15 +61,16 @@ export function GroundsModal({ data, method }: GroundsModalProps) {
     onError: () => {
       toast({
         variant: 'destructive',
-        title: `Erro ao ${method === 'POST' ? 'criar' : 'editar'} solo`,
+        title: `Erro ao ${method === 'POST' ? 'criar' : 'editar'} formato de objeto`,
       })
     },
   })
 
-  const groundSchema = method === 'POST' ? GroundSchema('create') : GroundSchema('update')
+  const objectFormatSchema =
+    method === 'POST' ? ObjectFormatSchema('create') : ObjectFormatSchema('update')
 
-  const form = useForm<Ground>({
-    resolver: zodResolver(groundSchema),
+  const form = useForm<ObjectFormat>({
+    resolver: zodResolver(objectFormatSchema),
     defaultValues: data,
   })
 
@@ -95,31 +96,20 @@ export function GroundsModal({ data, method }: GroundsModalProps) {
       <DialogContent className="w-11/12 h-auto">
         <DialogHeader>
           <DialogTitle>
-            {method === 'PUT' ? `Editar  solo | ${data?.name}` : 'Criar solo'}
+            {method === 'PUT'
+              ? `Editar formato de objeto | ${data?.name}`
+              : 'Criar formato de objeto'}
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={onSubmit} className="w-full flex flex-col gap-6">
-            <div className="grid grid-cols-2 grid-rows-2 gap-4">
+            <div className="grid grid-cols-2 grid-rows-1 gap-4">
               <FormField
                 control={form.control}
                 name="name"
                 render={({ field }) => (
                   <FormItem className="col-span-2">
                     <FormLabel>Nome</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="k"
-                render={({ field }) => (
-                  <FormItem className="row-start-2 col-span-2">
-                    <FormLabel>k</FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>

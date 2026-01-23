@@ -98,8 +98,6 @@ export default function LocatedObjectForm({ id, onSubmit }: LocatedObjectFormPro
     form.setValue('longitude', event.lng)
   }
 
-  console.log(form.formState.errors)
-
   return (
     <Form {...form}>
       <form

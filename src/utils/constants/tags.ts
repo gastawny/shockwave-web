@@ -4,4 +4,6 @@ export const Tags = [
   'objectFormats',
   'formThreats',
   'locatedObjects',
+  'bombThreats',
+  'users',
 ] as const

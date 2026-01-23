@@ -11,13 +11,42 @@ async function get(cookieName: string) {
     ?.split('=')[1]
 }
 
-async function set(cookieName: string, cookieValue: string, options: { expires?: Date } = {}) {
+type SetCookieOptions = {
+  expires?: Date | number
+  httpOnly?: boolean
+  path?: string
+  secure?: boolean
+  sameSite?: 'strict' | 'lax' | 'none'
+}
+
+async function set(cookieName: string, cookieValue: string, options: SetCookieOptions = {}) {
   if (typeof window === 'undefined') {
     const { cookies } = await import('next/headers')
     return cookies().set(cookieName, cookieValue, options)
   }
 
-  document.cookie = `${cookieName}=${cookieValue}; expires=${options.expires}`
+  const expiresStr = options.expires
+    ? options.expires instanceof Date
+      ? options.expires.toUTCString()
+      : new Date(options.expires).toUTCString()
+    : ''
+
+  document.cookie = `${cookieName}=${cookieValue}${
+    expiresStr ? `; expires=${expiresStr}` : ''
+  }; path=${options.path ?? '/'}${options.secure ? '; secure' : ''}${
+    options.sameSite ? `; samesite=${options.sameSite}` : ''
+  }`
 }
 
-export const cookies = { get, set }
+async function remove(cookieName: string, options: SetCookieOptions = {}) {
+  if (typeof window === 'undefined') {
+    const { cookies } = await import('next/headers')
+    return cookies().delete(cookieName)
+  }
+
+  document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=${
+    options.path ?? '/'
+  }`
+}
+
+export const cookies = { get, set, remove }

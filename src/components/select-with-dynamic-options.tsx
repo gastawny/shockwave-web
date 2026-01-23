@@ -39,7 +39,8 @@ export function SelectWithDynamicOptions({
     isRefetching,
   } = useQuery<GenericList[]>({
     queryKey: ['select-dynamic-options', tag],
-    queryFn: async () => await fetcher(`/api/handlers/${tag}/find2Select`),
+    queryFn: async () =>
+      await fetcher(`/api/handlers/${tag}/find2Select`, { justReturnResponse: false }),
     staleTime: 1000 * 60 * 5,
     retry: 2,
   })

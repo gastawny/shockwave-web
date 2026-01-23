@@ -23,26 +23,26 @@ import {
 import { useEffect, useState } from 'react'
 import { toast } from '@/components/ui/use-toast'
 import { Plus } from 'lucide-react'
-import { Ground, GroundSchema } from '@/types/ground'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { fetcher } from '@/infra/fetcher'
+import { FormThreat, FormThreatSchema } from '@/types/form-threat'
 
-export interface GroundsModalProps {
+export interface FormThreatsModalProps {
   method: 'PUT' | 'POST'
-  data?: Ground
+  data?: FormThreat
 }
 
-export function GroundsModal({ data, method }: GroundsModalProps) {
+export function FormThreatsModal({ data, method }: FormThreatsModalProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const queryClient = useQueryClient()
   const mutation = useMutation({
-    mutationKey: ['grounds', method],
-    mutationFn: async (data: Ground) => {
+    mutationKey: ['formThreats', method],
+    mutationFn: async (data: FormThreat) => {
       const res = await fetcher('/api/handlers', {
         method,
         body: JSON.stringify({
-          type: 'grounds',
+          type: 'formThreats',
           data,
         }),
       })
@@ -61,15 +61,16 @@ export function GroundsModal({ data, method }: GroundsModalProps) {
     onError: () => {
       toast({
         variant: 'destructive',
-        title: `Erro ao ${method === 'POST' ? 'criar' : 'editar'} solo`,
+        title: `Erro ao ${method === 'POST' ? 'criar' : 'editar'} forma de ameaça`,
       })
     },
   })
 
-  const groundSchema = method === 'POST' ? GroundSchema('create') : GroundSchema('update')
+  const formThreatSchema =
+    method === 'POST' ? FormThreatSchema('create') : FormThreatSchema('update')
 
-  const form = useForm<Ground>({
-    resolver: zodResolver(groundSchema),
+  const form = useForm<FormThreat>({
+    resolver: zodResolver(formThreatSchema),
     defaultValues: data,
   })
 
@@ -95,31 +96,18 @@ export function GroundsModal({ data, method }: GroundsModalProps) {
       <DialogContent className="w-11/12 h-auto">
         <DialogHeader>
           <DialogTitle>
-            {method === 'PUT' ? `Editar  solo | ${data?.name}` : 'Criar solo'}
+            {method === 'PUT' ? `Editar forma de ameaça | ${data?.name}` : 'Criar forma de ameaça'}
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={onSubmit} className="w-full flex flex-col gap-6">
-            <div className="grid grid-cols-2 grid-rows-2 gap-4">
+            <div className="grid grid-cols-2 grid-rows-3 gap-4">
               <FormField
                 control={form.control}
                 name="name"
                 render={({ field }) => (
                   <FormItem className="col-span-2">
                     <FormLabel>Nome</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="k"
-                render={({ field }) => (
-                  <FormItem className="row-start-2 col-span-2">
-                    <FormLabel>k</FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>

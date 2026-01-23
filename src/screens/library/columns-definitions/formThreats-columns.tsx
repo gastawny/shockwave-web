@@ -9,5 +9,6 @@ export const columnsFormThreats: ColumnDef<FormThreat>[] = [
     cell: ({ row }) => {
       return <span className="max-w-[350px] truncate font-medium">{row.getValue('name')}</span>
     },
+    footer: 'Nome',
   },
 ]
