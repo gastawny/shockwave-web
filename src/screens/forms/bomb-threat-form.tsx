@@ -25,6 +25,7 @@ import { fetcher } from '@/infra/fetcher'
 import { useLoading } from '@/infra/providers/loading-provider'
 import { Input } from '@/components/ui/input'
 import { SelectWithDynamicOptions } from '@/components/select-with-dynamic-options'
+import { ScrollArea } from '@/components/ui/scroll-area'
 
 type BombThreatFormProps = {
   id?: string | null
@@ -272,17 +273,19 @@ export function BombThreatForm({ id, onSubmit }: BombThreatFormProps) {
         onOpenChange={(open) => setModalObjectLocated((prev) => ({ ...prev, open }))}
       >
         <DialogContent className="w-11/12">
-          <DialogHeader>
-            <DialogTitle>
-              {modalObjectLocated.id ? 'Atualizar' : 'Novo'} Objeto Localizado
-            </DialogTitle>
-            <DialogDescription>
-              {modalObjectLocated.id
-                ? 'Atualize os dados do objeto localizado'
-                : 'Preencha os dados para criar um novo objeto localizado'}
-            </DialogDescription>
-          </DialogHeader>
-          <LocatedObjectForm id={modalObjectLocated.id} onSubmit={mutationLocatedObject.mutate} />
+          <ScrollArea className="h-[80vh]">
+            <DialogHeader>
+              <DialogTitle>
+                {modalObjectLocated.id ? 'Atualizar' : 'Novo'} Objeto Localizado
+              </DialogTitle>
+              <DialogDescription>
+                {modalObjectLocated.id
+                  ? 'Atualize os dados do objeto localizado'
+                  : 'Preencha os dados para criar um novo objeto localizado'}
+              </DialogDescription>
+            </DialogHeader>
+            <LocatedObjectForm id={modalObjectLocated.id} onSubmit={mutationLocatedObject.mutate} />
+          </ScrollArea>
         </DialogContent>
       </Dialog>
     </>

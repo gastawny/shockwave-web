@@ -14,48 +14,28 @@ import {
 } from '@/components/ui/table'
 import { fetcher } from '@/infra/fetcher'
 import { useLoading } from '@/infra/providers/loading-provider'
-import { useSuspenseQuery } from '@tanstack/react-query'
 import { Download } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
-type BombThreatReport = {
-  id: number
-  name: string
-  createdAt: string
-}
+const data = [
+  {
+    name: 'Relatório de Explosivos',
+    url: '/api/reports/explosives',
+  },
+] as const
 
 export default function ReportsPage() {
   const { setLoading } = useLoading()
   const [search, setSearch] = useState('')
 
-  const { data } = useSuspenseQuery<BombThreatReport[]>({
-    queryKey: ['reports', 'bombThreats'],
-    queryFn: async () => await fetcher('/api/reports/bombThreats', { justReturnResponse: false }),
-  })
-
   const filteredData = useMemo(() => {
     if (!data) return []
 
-    return data.filter(
-      (item) =>
-        item.name.toLowerCase().includes(search.toLowerCase()) ||
-        formatDate(item.createdAt).includes(search.toLowerCase())
-    )
+    return data.filter((item) => item.name.toLowerCase().includes(search.toLowerCase()))
   }, [data, search])
 
-  function formatDate(dateString: string) {
-    const date = new Date(dateString)
-    const day = String(date.getDate()).padStart(2, '0')
-    const month = String(date.getMonth() + 1).padStart(2, '0')
-    const year = date.getFullYear()
-    const hour = String(date.getHours()).padStart(2, '0')
-    const minute = String(date.getMinutes()).padStart(2, '0')
-
-    return `${day}/${month}/${year} ${hour}:${minute}`
-  }
-
   async function handleDownloadReport(id: number) {
-    const res = await fetcher(`/api/reports/bombThreats/${id}`, {
+    const res = await fetcher(data[id].url, {
       headers: { 'Content-Type': 'application/pdf' },
       justReturnResponse: true,
     })
@@ -79,20 +59,17 @@ export default function ReportsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[100px]">Número</TableHead>
-                  <TableHead className="text-right">Data de ocorrência</TableHead>
-                  <TableHead className="text-right w-16"></TableHead>
+                  <TableHead className="w-full">Relatório</TableHead>
                 </TableRow>
               </TableHeader>
 
               <TableBody>
-                {filteredData.map((d) => (
-                  <TableRow key={d.id}>
+                {filteredData.map((d, i) => (
+                  <TableRow key={i}>
                     <TableCell className="font-medium">{d.name}</TableCell>
-                    <TableCell className="text-right">{formatDate(d.createdAt)}</TableCell>
                     <TableCell className="text-right">
                       <Button
-                        onClick={() => setLoading(() => handleDownloadReport(d.id))}
+                        onClick={() => setLoading(() => handleDownloadReport(i))}
                         variant="outline"
                         size="icon"
                       >
