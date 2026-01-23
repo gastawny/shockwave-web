@@ -193,7 +193,10 @@ export default function LocatedObjectForm({ id, onSubmit }: LocatedObjectFormPro
           <p className="text-[0.8rem] font-medium text-destructive">Marque a localização no mapa</p>
         )}
         <div className="rounded-md bg-primary/10 h-96 w-full lg:col-span-2">
-          <Maps onMarkerChange={(e) => handleMarker(e)} />
+          <Maps
+            onMarkerChange={(e) => handleMarker(e)}
+            initialMarker={{ lat: form.getValues('latitude'), lng: form.getValues('longitude') }}
+          />
         </div>
         <Separator className="lg:col-span-2" />
         <Button type="submit" className="lg:col-span-2">

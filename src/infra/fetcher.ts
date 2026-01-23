@@ -23,8 +23,7 @@ export async function fetcher(
   const response = await fetch(API_URL + path, {
     ...options,
     headers: {
-      'Content-Type': 'application/json',
-
+      'Content-Type': options?.headers?.['Content-Type'] || 'application/json',
       ...options?.headers,
     },
   })

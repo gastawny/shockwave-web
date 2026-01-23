@@ -12,7 +12,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { API_URL } from '@/config/variables'
 import { fetcher } from '@/infra/fetcher'
 import { useLoading } from '@/infra/providers/loading-provider'
 import { useSuspenseQuery } from '@tanstack/react-query'
@@ -54,8 +53,9 @@ export default function ReportsPage() {
   }
 
   async function handleDownloadReport(id: number) {
-    const res = await fetch(`${API_URL}/api/reports/bombThreats/${id}`, {
+    const res = await fetcher(`/api/reports/bombThreats/${id}`, {
       headers: { 'Content-Type': 'application/pdf' },
+      justReturnResponse: true,
     })
 
     const blob = await res.blob()
@@ -72,7 +72,7 @@ export default function ReportsPage() {
         onChange={(e) => setSearch(e.target.value)}
       />
       <Card className="h-full">
-        <CardContent className="p-6">
+        <CardContent className="p-2">
           <ScrollArea className="h-full w-full">
             <Table>
               <TableHeader>

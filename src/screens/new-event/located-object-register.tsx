@@ -1,3 +1,5 @@
+'use client'
+
 import { toast } from '@/components/ui/use-toast'
 import { http } from '@/infra/http'
 import { LocatedObject } from '@/types/located-object'

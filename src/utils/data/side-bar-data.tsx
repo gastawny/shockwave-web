@@ -65,8 +65,8 @@ export const sideBarData = {
       url: '/reports',
       items: [
         {
-          title: 'Explosivos',
-          url: '#',
+          title: 'Relatórios Gerais',
+          url: '/reports/general',
         },
         {
           title: 'Ameaças de Bomba',
