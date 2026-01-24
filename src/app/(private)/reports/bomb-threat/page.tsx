@@ -1,5 +1,9 @@
 'use client'
 
+import { ColumnDef } from '@/components/data-table/data-table'
+import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header'
+import { DataTablePagination } from '@/components/data-table/data-table-pagination'
+import { DataTableToolbar } from '@/components/data-table/data-table-toolbar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -15,6 +19,19 @@ import {
 import { fetcher } from '@/infra/fetcher'
 import { useLoading } from '@/infra/providers/loading-provider'
 import { useSuspenseQuery } from '@tanstack/react-query'
+import {
+  ColumnFiltersState,
+  flexRender,
+  getCoreRowModel,
+  getFacetedRowModel,
+  getFacetedUniqueValues,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  SortingState,
+  useReactTable,
+  VisibilityState,
+} from '@tanstack/react-table'
 import { Download } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
@@ -24,35 +41,46 @@ type BombThreatReport = {
   createdAt: string
 }
 
-export default function ReportsPage() {
-  const { setLoading } = useLoading()
-  const [search, setSearch] = useState('')
+function formatDate(dateString: string) {
+  const date = new Date(dateString)
+  const day = String(date.getDate()).padStart(2, '0')
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const year = date.getFullYear()
+  const hour = String(date.getHours()).padStart(2, '0')
+  const minute = String(date.getMinutes()).padStart(2, '0')
 
+  return `${day}/${month}/${year} ${hour}:${minute}`
+}
+
+const columns: ColumnDef<BombThreatReport>[] = [
+  {
+    accessorKey: 'name',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Nome" />,
+    cell: ({ row }) => {
+      return <span className="max-w-[350px] truncate font-medium">{row.getValue('name')}</span>
+    },
+    footer: 'Nome',
+  },
+  {
+    id: 'createdAt',
+    accessorFn: (row) => formatDate(row.createdAt),
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Data de ocorrência" />,
+    cell: ({ row }) => {
+      return <span className="max-w-[350px] truncate font-medium">{row.getValue('createdAt')}</span>
+    },
+    filterFn: (row, id, value) => {
+      const cell = String(row.getValue(id) ?? '')
+      const filter = String(value ?? '')
+      return cell.toLowerCase().includes(filter.toLowerCase())
+    },
+  },
+]
+
+export default function ReportsPage() {
   const { data } = useSuspenseQuery<BombThreatReport[]>({
     queryKey: ['reports', 'bombThreats'],
     queryFn: async () => await fetcher('/api/reports/bombThreats', { justReturnResponse: false }),
   })
-
-  const filteredData = useMemo(() => {
-    if (!data) return []
-
-    return data.filter(
-      (item) =>
-        item.name.toLowerCase().includes(search.toLowerCase()) ||
-        formatDate(item.createdAt).includes(search.toLowerCase())
-    )
-  }, [data, search])
-
-  function formatDate(dateString: string) {
-    const date = new Date(dateString)
-    const day = String(date.getDate()).padStart(2, '0')
-    const month = String(date.getMonth() + 1).padStart(2, '0')
-    const year = date.getFullYear()
-    const hour = String(date.getHours()).padStart(2, '0')
-    const minute = String(date.getMinutes()).padStart(2, '0')
-
-    return `${day}/${month}/${year} ${hour}:${minute}`
-  }
 
   async function handleDownloadReport(id: number) {
     const res = await fetcher(`/api/reports/bombThreats/${id}`, {
@@ -65,47 +93,84 @@ export default function ReportsPage() {
     window.open(url)
   }
 
-  return (
-    <div className="flex flex-col gap-2 h-full">
-      <Input
-        placeholder="Pesquisar..."
-        className="lg:w-72"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
-      <Card className="h-full">
-        <CardContent className="p-2">
-          <ScrollArea className="h-full w-full">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[100px]">Número</TableHead>
-                  <TableHead className="text-right">Data de ocorrência</TableHead>
-                  <TableHead className="text-right w-16"></TableHead>
-                </TableRow>
-              </TableHeader>
+  const [rowSelection, setRowSelection] = useState({})
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  const [sorting, setSorting] = useState<SortingState>([])
 
-              <TableBody>
-                {filteredData.map((d) => (
-                  <TableRow key={d.id}>
-                    <TableCell className="font-medium">{d.name}</TableCell>
-                    <TableCell className="text-right">{formatDate(d.createdAt)}</TableCell>
-                    <TableCell className="text-right">
-                      <Button
-                        onClick={() => setLoading(() => handleDownloadReport(d.id))}
-                        variant="outline"
-                        size="icon"
-                      >
-                        <Download />
-                      </Button>
+  const table = useReactTable({
+    data,
+    columns,
+    state: {
+      sorting,
+      columnVisibility,
+      rowSelection,
+      columnFilters,
+    },
+    enableRowSelection: true,
+    onRowSelectionChange: setRowSelection,
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    onColumnVisibilityChange: setColumnVisibility,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFacetedRowModel: getFacetedRowModel(),
+    getFacetedUniqueValues: getFacetedUniqueValues(),
+  })
+
+  return (
+    <div className="space-y-4">
+      <DataTableToolbar dataFilters={{}} table={table} />
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => {
+                  return (
+                    <TableHead key={header.id} colSpan={header.colSpan}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(header.column.columnDef.header, header.getContext())}
+                    </TableHead>
+                  )
+                })}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </ScrollArea>
-        </CardContent>
-      </Card>
+                  ))}
+                  <TableCell className="flex gap-2 justify-end">
+                    <Button
+                      onClick={() => handleDownloadReport((row.original as any).id)}
+                      variant="outline"
+                      size="icon"
+                    >
+                      <Download className="w-4 h-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={columns.length} className="h-24 text-center">
+                  Sem resultados.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+      <DataTablePagination table={table} />
     </div>
   )
 }

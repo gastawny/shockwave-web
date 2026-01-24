@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import { Cross2Icon } from '@radix-ui/react-icons'
-import { ColumnDef, Table } from '@tanstack/react-table'
+import { Table } from '@tanstack/react-table'
 
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
@@ -11,7 +11,6 @@ import { DataTableViewOptions } from './data-table-view-options'
 import { DataTableFacetedFilter } from './data-table-faceted-filter'
 import { ForwardRefExoticComponent, RefAttributes } from 'react'
 import { IconProps } from '@radix-ui/react-icons/dist/types'
-import { Separator } from '../ui/separator'
 
 export interface FilterDef {
   column: string
@@ -26,14 +25,14 @@ export interface FilterDef {
 interface DataTableToolbarProps<TData, TValue> {
   table: Table<TData>
   dataFilters: {
-    filters: FilterDef[]
-    createButton: React.ReactNode
+    filters?: FilterDef[]
+    createButton?: React.ReactNode
   }
 }
 
 export function DataTableToolbar<TData, TValue>({
   table,
-  dataFilters,
+  dataFilters: { filters = [], createButton },
 }: DataTableToolbarProps<TData, TValue>) {
   const isFiltered = table.getState().columnFilters.length > 0
   const principalColumn = table.getAllColumns()[0]
@@ -48,7 +47,7 @@ export function DataTableToolbar<TData, TValue>({
           }
           className="w-full lg:w-[250px]"
         />
-        {dataFilters.filters.map(
+        {filters.map(
           ({ column, title, options }) =>
             table.getColumn(column) && (
               <DataTableFacetedFilter
@@ -70,7 +69,7 @@ export function DataTableToolbar<TData, TValue>({
           </Button>
         )}
       </div>
-      <DataTableViewOptions createButton={dataFilters.createButton} table={table} />
+      {createButton && <DataTableViewOptions createButton={createButton} table={table} />}
     </div>
   )
 }

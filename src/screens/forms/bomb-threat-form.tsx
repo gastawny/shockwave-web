@@ -20,20 +20,62 @@ import {
 } from '@/components/ui/dialog'
 import { LocatedObject } from '@/types/located-object'
 import { useEffect, useState } from 'react'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { fetcher } from '@/infra/fetcher'
 import { useLoading } from '@/infra/providers/loading-provider'
 import { Input } from '@/components/ui/input'
 import { SelectWithDynamicOptions } from '@/components/select-with-dynamic-options'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import {
+  Dropzone,
+  DropZoneArea,
+  DropzoneDescription,
+  DropzoneFileList,
+  DropzoneFileListItem,
+  DropzoneMessage,
+  DropzoneRemoveFile,
+  DropzoneImagePreview,
+  DropzoneTrigger,
+  useDropzone,
+} from '@/components/ui/dropzone'
+import { CloudUploadIcon, Trash2Icon } from 'lucide-react'
 
 type BombThreatFormProps = {
   id?: string | null
-  onSubmit: (data: BombThreat) => void
+  onSubmit: (data: BombThreat & { multipartFiles: File[] }) => void
+}
+
+function generateKey() {
+  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
 }
 
 export function BombThreatForm({ id, onSubmit }: BombThreatFormProps) {
+  const { data } = useSuspenseQuery({
+    queryKey: ['bomb-threat', id],
+    queryFn: async ({ queryKey }) => {
+      const [, idParam] = queryKey
+      if (!idParam) return null
+      return await fetcher(`/api/handlers/bombThreats/${idParam}`, { justReturnResponse: false })
+    },
+    refetchOnMount: true,
+  })
   const { loading } = useLoading()
+  const dropzone = useDropzone({
+    onDropFile: async (file: File) => {
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+      return {
+        status: 'success',
+        result: URL.createObjectURL(file),
+      }
+    },
+    validation: {
+      accept: {
+        'image/*': ['.png', '.jpg', '.jpeg'],
+      },
+      maxSize: 10 * 1024 * 1024,
+      maxFiles: 10,
+    },
+  })
 
   const [isRefetchingObjectLocated, setIsRefetchingObjectLocated] = useState(false)
   const [modalObjectLocated, setModalObjectLocated] = useState({
@@ -66,34 +108,57 @@ export function BombThreatForm({ id, onSubmit }: BombThreatFormProps) {
       objectNotFoundDescription: '',
       formThreatDescription: '',
       objectType: 'not_located',
+      files: [],
     },
   })
 
   const locatedObjectId = form.watch('locatedObject.id')
 
-  useEffect(() => {
-    ;(async () => {
-      if (!id) return
+  function base64ToFile(base64: string, filename: string, mime = 'image/jpeg') {
+    const binary = atob(base64.replace(/^data:.*;base64,/, ''))
+    const len = binary.length
+    const buffer = new Uint8Array(len)
+    for (let i = 0; i < len; i++) buffer[i] = binary.charCodeAt(i)
+    const blob = new Blob([buffer], { type: mime })
+    return new File([blob], filename, { type: mime })
+  }
 
-      const res = await http(`/api/handlers/bombThreats/${id}`)
+  async function setBombThreatFormValues(data: BombThreat) {
+    form.setValue('id', data?.id)
+    form.setValue('name', data?.name)
+    form.setValue('formThreat', data?.formThreat)
+    form.setValue('formThreatDescription', data?.formThreatDescription)
+    form.setValue('objectType', data?.objectType)
+    form.setValue('locatedObject', data?.locatedObject)
+    form.setValue('objectNotFoundDescription', data.objectNotFoundDescription)
+    form.setValue('files', data.files)
 
-      if (res.ok) {
-        form.setValue('id', res.data.id)
-        form.setValue('name', res.data.name)
-        form.setValue('formThreat', res.data.formThreat)
-        form.setValue('formThreatDescription', res.data.formThreatDescription)
-        form.setValue('objectType', res.data.objectType)
-        form.setValue('locatedObject', res.data.locatedObject)
-        form.setValue('objectNotFoundDescription', res.data.objectNotFoundDescription)
-
-        if (res.data.locatedObject === null) {
-          form.setValue('objectType', 'not_located')
-        } else {
-          form.setValue('objectType', 'located_object')
+    if (Array.isArray(data.files) && data.files.length) {
+      const items = data.files.map((f: any) => {
+        const file = base64ToFile(f.data, f.name ?? `image-${f.id}`, 'image/jpeg')
+        const dataUrl = `data:image/jpeg;base64,${f.data}`
+        return {
+          id: String(f.id),
+          fileName: f.name ?? `image-${f.id}`,
+          file,
+          result: dataUrl,
         }
-      }
-    })()
-  }, [id])
+      })
+      await dropzone.hydrateFiles(items)
+    }
+
+    if (data.locatedObject === null) {
+      form.setValue('objectType', 'not_located')
+    } else {
+      form.setValue('objectType', 'located_object')
+    }
+  }
+
+  useEffect(() => {
+    if (!data) return
+
+    setBombThreatFormValues(data)
+  }, [data])
 
   async function onSuccessSubmitLocatedObject(data: any, variables: LocatedObject) {
     await queryClient.refetchQueries({
@@ -121,11 +186,17 @@ export function BombThreatForm({ id, onSubmit }: BombThreatFormProps) {
     form.setValue('objectNotFoundDescription', null)
   }
 
+  async function submit(data: BombThreat) {
+    const multipartFiles = dropzone.fileStatuses.map((f) => f.file).filter(Boolean)
+
+    onSubmit({ ...data, multipartFiles })
+  }
+
   return (
     <>
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(onSubmit)}
+          onSubmit={form.handleSubmit(submit)}
           className="full grid grid-cols-1 lg:grid-cols-2 gap-4"
         >
           <FormField
@@ -258,6 +329,55 @@ export function BombThreatForm({ id, onSubmit }: BombThreatFormProps) {
 
           <Separator className="my-2 lg:col-span-2" />
 
+          <div className="not-prose flex flex-col gap-4 lg:col-span-2">
+            <Dropzone {...dropzone}>
+              <div>
+                <div className="flex justify-between">
+                  <DropzoneDescription>Selecione até 10 imagens</DropzoneDescription>
+                  <DropzoneMessage />
+                </div>
+                <DropZoneArea>
+                  <DropzoneTrigger className="flex flex-col items-center gap-4 bg-transparent p-10 text-center text-sm">
+                    <CloudUploadIcon className="size-8" />
+                    <div>
+                      <p className="font-semibold">Selecione ou arraste e solte</p>
+                      <p className="text-sm text-muted-foreground">
+                        Clique aqui ou arraste e solte para fazer upload
+                      </p>
+                    </div>
+                  </DropzoneTrigger>
+                </DropZoneArea>
+              </div>
+
+              <DropzoneFileList className="grid grid-cols-3 gap-3 p-0">
+                {dropzone.fileStatuses.map((file) => (
+                  <DropzoneFileListItem
+                    className="overflow-hidden rounded-md bg-secondary p-0 shadow-sm"
+                    key={generateKey()}
+                    file={file}
+                  >
+                    {file.status === 'pending' && (
+                      <div className="aspect-video animate-pulse bg-black/20" />
+                    )}
+                    {file.status === 'success' && (
+                      <DropzoneImagePreview file={file} imgClassName="aspect-video object-cover" />
+                    )}
+                    <div className="flex items-center justify-between p-2 pl-4">
+                      <div className="min-w-0">
+                        <p className="truncate text-sm">{file.fileName}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {(file.file.size / (1024 * 1024)).toFixed(2)} MB
+                        </p>
+                      </div>
+                      <DropzoneRemoveFile variant="ghost" className="shrink-0 hover:outline">
+                        <Trash2Icon className="size-4" />
+                      </DropzoneRemoveFile>
+                    </div>
+                  </DropzoneFileListItem>
+                ))}
+              </DropzoneFileList>
+            </Dropzone>
+          </div>
           <Button
             disabled={loading || isRefetchingObjectLocated}
             type="submit"

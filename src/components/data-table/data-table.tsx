@@ -128,7 +128,6 @@ export function DataTable<TData, TValue>({
                       <Button
                         onClick={() => mutation.mutate({ tag: type, id: (row.original as any).id })}
                         variant="destructive"
-                        size="sm"
                       >
                         Excluir
                       </Button>

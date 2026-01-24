@@ -27,7 +27,7 @@ export function DataTableViewOptions<TData>({
     <div className="flex items-center flex-col lg:flex-row gap-2 w-full lg:w-auto">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" className="ml-auto h-8 flex w-full">
+          <Button variant="outline" className="ml-auto h-8 flex w-full lg:w-auto">
             <MixerHorizontalIcon className="mr-1 h-4 w-4" />
             Visualizar
           </Button>

@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { optionalIf, OptionalIfType } from '@/infra/optionalIf'
 import { FormThreatSchema } from './form-threat'
 import { LocatedObjectSchema } from './located-object'
+import { FileSchema } from './file'
 
 const idSchema = z.number()
 const stringSchema = z.string({ required_error: 'Este campo é obrigatório' })
@@ -16,6 +17,7 @@ export const BombThreatSchema = (method: OptionalIfType) => {
       method
     ),
     objectType: z.enum(['located_object', 'not_located']),
+    files: FileSchema.array().optional(),
   })
 
   const WithLocatedObjectSchema = BaseSchema.extend({
