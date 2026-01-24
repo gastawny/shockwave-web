@@ -78,7 +78,6 @@ export function ExplosivesModal({ data, method }: ExplosivesModalProps) {
     onSuccess: () => {
       queryClient.refetchQueries({ queryKey: ['library', 'users'] })
       queryClient.refetchQueries({ queryKey: ['select-dynamic-options', 'users'] })
-      // form.reset()
       setIsDialogOpen(false)
       toast({ title: `Usuário ${method === 'POST' ? 'criado' : 'atualizado'} com sucesso` })
     },

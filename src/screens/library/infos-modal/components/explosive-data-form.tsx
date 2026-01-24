@@ -113,7 +113,6 @@ export default function ExplosiveDataForm({ method, explosiveId, onSaved }: Prop
         : r
     })
 
-    // extract name from response or template
     let extractedName: string | undefined
     if (resp && !Array.isArray(resp))
       extractedName = resp.name ?? resp.explosive?.name ?? resp.explosiveName ?? resp.data?.name
@@ -150,7 +149,6 @@ export default function ExplosiveDataForm({ method, explosiveId, onSaved }: Prop
 
   const onSubmit = async (values: FormValues) => {
     if (!values.name?.trim()) {
-      // set simple field error via reset with message is more complex; show toast instead
       toast({ variant: 'destructive', title: 'O nome é obrigatório' })
       return
     }

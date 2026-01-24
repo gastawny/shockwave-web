@@ -1,7 +1,7 @@
 export default async function NotFound() {
   return (
     <div>
-      <p>Could not find requested resource</p>
+      <h1>404 - Página Não Encontrada</h1>
     </div>
   )
 }
