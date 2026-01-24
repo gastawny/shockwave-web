@@ -103,9 +103,7 @@ export function ExplosivesModal({ data, method }: ExplosivesModalProps) {
           <ScrollArea className="max-h-[90vh]">
             <DialogHeader className="mb-4">
               <DialogTitle>
-                {method === 'PUT'
-                  ? `Editar forma de ameaça | ${data?.name}`
-                  : 'Criar forma de ameaça'}
+                {method === 'PUT' ? `Editar explosivo | ${data?.name}` : 'Criar explosivo'}
               </DialogTitle>
             </DialogHeader>
 

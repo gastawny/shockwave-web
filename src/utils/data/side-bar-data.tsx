@@ -74,16 +74,5 @@ export const sideBarData = {
         },
       ],
     },
-    {
-      title: 'Configurações',
-      defaultOpen: false,
-      url: '/settings',
-      items: [
-        {
-          title: 'Dados Pessoais',
-          url: '#',
-        },
-      ],
-    },
   ],
 }
