@@ -3,7 +3,6 @@
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
@@ -17,9 +16,9 @@ import { useEffect, useState } from 'react'
 import { LogOut, Moon, Sun } from 'lucide-react'
 import { Button } from './ui/button'
 import { cookies } from '@/infra/cookies'
-import { Dialog, DialogContent, DialogHeader } from './ui/dialog'
-import { DialogTrigger } from '@radix-ui/react-dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTrigger } from './ui/dialog'
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
+import { HeaderUserEdit } from './header-user-edit'
 
 export function Header() {
   const pathname = usePathname()
@@ -62,6 +61,8 @@ export function Header() {
           </BreadcrumbList>
         </Breadcrumb>
         <div className="ml-auto flex gap-2">
+          <HeaderUserEdit />
+
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
@@ -90,7 +91,7 @@ export function Header() {
                 <p>Sair</p>
               </TooltipContent>
             </Tooltip>
-            <DialogContent>
+            <DialogContent className="w-11/12">
               <DialogHeader>
                 <h3 className="text-lg font-medium">Confirmação de Logout</h3>
                 <p className="mt-2 text-sm text-muted-foreground">
