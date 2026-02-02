@@ -27,6 +27,30 @@ export const LocatedObjectSchema = (method: OptionalIfType) =>
       }),
       method
     ),
+    street: optionalIf(
+      z.string({
+        required_error: 'Rua é obrigatória',
+      }),
+      method
+    ),
+    number: optionalIf(
+      z.string({
+        required_error: 'Número é obrigatório',
+      }),
+      method
+    ),
+    city: optionalIf(
+      z.string({
+        required_error: 'Cidade é obrigatória',
+      }),
+      method
+    ),
+    cep: optionalIf(
+      z.string({
+        required_error: 'CEP é obrigatório',
+      }),
+      method
+    ),
     longitude: optionalIf(
       z.number({
         required_error: 'Longitude é obrigatória',
