@@ -15,7 +15,7 @@ export const sideBarData = {
         },
         {
           title: 'Pós-Explosão',
-          url: '#',
+          url: '/new-event/post-explosion',
         },
       ],
     },
@@ -47,6 +47,10 @@ export const sideBarData = {
         {
           title: 'Ameaças de Bomba',
           url: '/library/bombThreats',
+        },
+        {
+          title: 'Pós-Explosões',
+          url: '/library/postExplosions',
         },
         {
           title: 'POPs',

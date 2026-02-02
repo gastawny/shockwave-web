@@ -6,6 +6,7 @@ import { UsersModal, UsersModalProps } from './users-modal'
 import { LocatedObjectModalProps, LocatedObjectsModal } from './locatedObjects-modal'
 import { BombThreatsModal, BombThreatsModalProps } from './bombThreats-modal'
 import { ExplosivesModalProps, ExplosivesModal } from './explosives-modal'
+import { PostExplosionModalProps, PostExplosionsModal } from './postExplosions-modal'
 
 export const infosModal: Record<(typeof Tags)[number], any> = {
   grounds: ({ method, data }: GroundsModalProps) => <GroundsModal method={method} data={data} />,
@@ -23,6 +24,9 @@ export const infosModal: Record<(typeof Tags)[number], any> = {
   ),
   bombThreats: ({ method, data }: BombThreatsModalProps) => (
     <BombThreatsModal method={method} data={data} />
+  ),
+  postExplosions: ({ method, data }: PostExplosionModalProps) => (
+    <PostExplosionsModal method={method} data={data} />
   ),
   users: ({ method, data }: UsersModalProps) => <UsersModal method={method} data={data} />,
 } as const

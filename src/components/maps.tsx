@@ -2,7 +2,7 @@
 
 import { GoogleMap, useJsApiLoader, Marker, Circle } from '@react-google-maps/api'
 import { useTheme } from 'next-themes'
-import { useCallback, useState, CSSProperties, useEffect } from 'react'
+import { useCallback, useState, CSSProperties, useEffect, useMemo } from 'react'
 
 interface MapContainerStyleProps {
   width?: string
@@ -24,7 +24,7 @@ const toGeoLocation = (loc?: GeoLocationProps | GeoLocation | null): GeoLocation
   return { lat: Number(loc.lat), lng: Number(loc.lng) }
 }
 
-interface CircleConfig {
+export interface CircleConfig {
   label: string
   center?: GeoLocation
   radius: number
@@ -44,35 +44,31 @@ interface MapLegendProps {
 }
 
 const MapLegend = ({ items }: MapLegendProps) => {
+  const { theme } = useTheme()
   if (items.length === 0) {
     return null
   }
 
+  const bgClass =
+    theme === 'dark'
+      ? 'bg-zinc-900 text-zinc-100 border-zinc-700'
+      : 'bg-white text-zinc-900 border-zinc-200'
+  const shadowClass = 'shadow-lg'
+
   return (
     <div
-      style={{
-        position: 'absolute',
-        bottom: '20px',
-        left: '10px',
-        backgroundColor: 'white',
-        padding: '10px',
-        borderRadius: '5px',
-        boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
-        zIndex: 1,
-      }}
+      className={`absolute left-2 bottom-5 p-3 rounded-md border ${bgClass} ${shadowClass} z-[1] min-w-[160px]`}
     >
       {items.map((item, index) => (
-        <div key={index} style={{ display: 'flex', alignItems: 'center', marginTop: '5px' }}>
+        <div key={index} className="flex items-center mt-1 first:mt-0">
           <div
+            className="w-5 h-5 rounded-sm border mr-2"
             style={{
-              width: '20px',
-              height: '20px',
               backgroundColor: item.color,
-              marginRight: '10px',
-              border: '1px solid #ccc',
+              borderColor: theme === 'dark' ? '#27272a' : '#e5e7eb',
             }}
           />
-          <span>{item.label}</span>
+          <span className="truncate text-sm">{item.label}</span>
         </div>
       ))}
     </div>
@@ -200,21 +196,25 @@ export function Maps({
     [onMarkerChange, isMarkerLocked]
   )
 
+  const allMarkers = [...markers, pointA]
+
+  const circlesWithDefaults = useMemo(
+    () =>
+      circles.map((circle) => ({
+        label: circle.label,
+        center: circle.center || pointA,
+        radius: circle.radius,
+        fillColor: circle.fillColor || '#FF0000',
+        strokeColor: circle.strokeColor || '#FF0000',
+        strokeWeight: circle.strokeWeight ?? 2,
+        fillOpacity: circle.fillOpacity ?? 0.2,
+      })),
+    [circles, pointA]
+  )
+
   if (!isLoaded) {
     return <></>
   }
-
-  const allMarkers = [...markers, pointA]
-
-  const circlesWithDefaults = circles.map((circle) => ({
-    label: circle.label,
-    center: circle.center || pointA,
-    radius: circle.radius,
-    fillColor: circle.fillColor || '#FF0000',
-    strokeColor: circle.strokeColor || '#FF0000',
-    strokeWeight: circle.strokeWeight ?? 2,
-    fillOpacity: circle.fillOpacity ?? 0.2,
-  }))
 
   const mapOptions: google.maps.MapOptions = {
     streetViewControl: false,

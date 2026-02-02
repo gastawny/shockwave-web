@@ -6,6 +6,7 @@ import { columnsUsers } from './users-columns'
 import { columnsLocatedObjects } from './locatedObjects-columns'
 import { columnsBombThreats } from './bombThreats-columns'
 import { columnsExplosives } from './explosives-columns'
+import { columnsPostExplosion } from './postExplosions-columns'
 
 export const columnsDefinitions: Record<(typeof Tags)[number], any> = {
   grounds: columnsGround,
@@ -14,5 +15,6 @@ export const columnsDefinitions: Record<(typeof Tags)[number], any> = {
   objectFormats: columnsObjectFormats,
   locatedObjects: columnsLocatedObjects,
   bombThreats: columnsBombThreats,
+  postExplosions: columnsPostExplosion,
   users: columnsUsers,
 } as const
