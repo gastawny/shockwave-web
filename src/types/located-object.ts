@@ -58,6 +58,13 @@ export const LocatedObjectSchema = (method: OptionalIfType) =>
       }),
       method
     ),
+    distance: optionalIf(
+      z.coerce.number({
+        required_error: 'Distância é obrigatória',
+        invalid_type_error: 'Distância deve ser um número',
+      }),
+      method
+    ),
     explosive: optionalIf(ExplosiveSchema('update_higher'), method),
     ground: optionalIf(GroundSchema('update_higher'), method),
     objectFormat: optionalIf(ObjectFormatSchema('update_higher'), method),

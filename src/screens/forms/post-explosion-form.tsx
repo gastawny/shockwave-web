@@ -23,9 +23,39 @@ import { PostExplosion, PostExplosionSchema } from '@/types/post-explosion'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { CloudUploadIcon, Trash2Icon } from 'lucide-react'
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useWatch } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
+import { fetchAddressByCep, maskCep } from '@/utils/cep'
+
+async function getAddressFromLatLng(lat: number, lng: number): Promise<string> {
+  if (typeof window === 'undefined' || !window.google) return ''
+  return new Promise((resolve) => {
+    const geocoder = new window.google.maps.Geocoder()
+    geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+      if (status === 'OK' && results && results[0]) {
+        resolve(results[0].formatted_address)
+      } else {
+        resolve('')
+      }
+    })
+  })
+}
+
+async function getLatLngFromAddress(address: string): Promise<{ lat: number; lng: number } | null> {
+  if (typeof window === 'undefined' || !window.google) return null
+  return new Promise((resolve) => {
+    const geocoder = new window.google.maps.Geocoder()
+    geocoder.geocode({ address }, (results, status) => {
+      if (status === 'OK' && results && results[0]) {
+        const location = results[0].geometry.location
+        resolve({ lat: location.lat(), lng: location.lng() })
+      } else {
+        resolve(null)
+      }
+    })
+  })
+}
 import { json } from 'stream/consumers'
 
 interface PostExplosionFormProps {
@@ -78,8 +108,69 @@ export function PostExplosionForm({ id, onSubmit }: PostExplosionFormProps) {
       description: '',
       vestigeDistance: undefined,
       files: [],
+      street: '',
+      number: '',
+      city: '',
+      cep: '',
     },
   })
+
+  const [street, setStreet] = useState('')
+  const [number, setNumber] = useState('')
+  const [city, setCity] = useState('')
+  const [cep, setCep] = useState('')
+  const isUpdatingFromMap = useRef(false)
+
+  async function handleStreetChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const value = e.target.value
+    setStreet(value)
+    form.setValue('street', value)
+    await tryGeocode()
+  }
+  async function handleNumberChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const value = e.target.value
+    setNumber(value)
+    form.setValue('number', value)
+    await tryGeocode()
+  }
+  async function handleCityChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const value = e.target.value
+    setCity(value)
+    form.setValue('city', value)
+    await tryGeocode()
+  }
+  async function handleCepChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const raw = e.target.value
+    const masked = maskCep(raw)
+    setCep(masked)
+    form.setValue('cep', masked)
+
+    const cleanCep = raw.replace(/\D/g, '')
+    if (cleanCep.length === 8) {
+      const data = await fetchAddressByCep(cleanCep)
+      if (data) {
+        setStreet(data.street)
+        setCity(data.city)
+        form.setValue('street', data.street)
+        form.setValue('city', data.city)
+        await tryGeocode()
+      }
+    } else {
+      await tryGeocode()
+    }
+  }
+
+  async function tryGeocode() {
+    if (isUpdatingFromMap.current) return
+    const fullAddress = [street, number, city, cep].filter(Boolean).join(', ')
+    if (fullAddress.length > 8) {
+      const coords = await getLatLngFromAddress(fullAddress)
+      if (coords) {
+        form.setValue('latitude', coords.lat)
+        form.setValue('longitude', coords.lng)
+      }
+    }
+  }
 
   const latitude = useWatch({ control: form.control, name: 'latitude' })
   const longitude = useWatch({ control: form.control, name: 'longitude' })
@@ -127,13 +218,28 @@ export function PostExplosionForm({ id, onSubmit }: PostExplosionFormProps) {
   }
 
   async function setPostExplosionFormValues(data: PostExplosion) {
-    form.setValue('id', data?.id)
-    form.setValue('name', data?.name)
-    form.setValue('latitude', data?.latitude)
-    form.setValue('longitude', data?.longitude)
-    form.setValue('description', data?.description)
-    form.setValue('vestigeDistance', data?.vestigeDistance)
-    form.setValue('files', data.files)
+    form.reset({
+      id: data?.id,
+      name: data?.name ?? '',
+      latitude: data?.latitude,
+      longitude: data?.longitude,
+      description: data?.description ?? '',
+      vestigeDistance: data?.vestigeDistance,
+      files: data.files ?? [],
+      street: data?.street || '',
+      number: data?.number || '',
+      city: data?.city || '',
+      cep: data?.cep || '',
+    })
+
+    setStreet(data?.street || '')
+    setNumber(data?.number || '')
+    setCity(data?.city || '')
+    setCep(data?.cep || '')
+
+    setTimeout(() => {
+      refetchCircles()
+    }, 200)
 
     if (Array.isArray(data.files) && data.files.length) {
       const items = data.files.map((f: any) => {
@@ -153,6 +259,23 @@ export function PostExplosionForm({ id, onSubmit }: PostExplosionFormProps) {
   async function handleMarker(event: GeoLocation) {
     form.setValue('latitude', event.lat)
     form.setValue('longitude', event.lng)
+    isUpdatingFromMap.current = true
+    const addr = await getAddressFromLatLng(event.lat, event.lng)
+    if (addr) {
+      const parts = addr.split(',')
+      setStreet(parts[0]?.trim() || '')
+      setNumber(parts[1]?.replace(/[^0-9]/g, '').trim() || '')
+      setCity(parts[2]?.trim() || '')
+      setCep(parts.find((p) => /\d{5}-?\d{3}/.test(p))?.match(/\d{5}-?\d{3}/)?.[0] || '')
+      form.setValue('street', parts[0]?.trim() || '')
+      form.setValue('number', parts[1]?.replace(/[^0-9]/g, '').trim() || '')
+      form.setValue('city', parts[2]?.trim() || '')
+      form.setValue(
+        'cep',
+        parts.find((p) => /\d{5}-?\d{3}/.test(p))?.match(/\d{5}-?\d{3}/)?.[0] || ''
+      )
+    }
+    isUpdatingFromMap.current = false
     await refetchCircles()
   }
 
@@ -161,8 +284,6 @@ export function PostExplosionForm({ id, onSubmit }: PostExplosionFormProps) {
 
     setPostExplosionFormValues(data)
   }, [data])
-
-  console.log(form.formState.errors)
 
   async function submit(data: PostExplosion) {
     const multipartFiles = dropzone.fileStatuses.map((f) => f.file).filter(Boolean)
@@ -214,10 +335,33 @@ export function PostExplosionForm({ id, onSubmit }: PostExplosionFormProps) {
 
         <Separator className="lg:col-span-2" />
 
+        <h2 className="text-lg font-medium lg:col-span-2">Endereço</h2>
+
+        <FormItem>
+          <FormLabel>Rua</FormLabel>
+          <Input placeholder="Rua" value={street} onChange={handleStreetChange} />
+          <FormMessage />
+        </FormItem>
+        <FormItem>
+          <FormLabel>Número</FormLabel>
+          <Input placeholder="Número" value={number} onChange={handleNumberChange} />
+          <FormMessage />
+        </FormItem>
+        <FormItem>
+          <FormLabel>Cidade</FormLabel>
+          <Input placeholder="Cidade" value={city} onChange={handleCityChange} />
+          <FormMessage />
+        </FormItem>
+        <FormItem>
+          <FormLabel>CEP</FormLabel>
+          <Input placeholder="CEP" value={cep} onChange={handleCepChange} maxLength={9} />
+          <FormMessage />
+        </FormItem>
+
         {latError && (
           <p className="text-[0.8rem] font-medium text-destructive">Marque a localização no mapa</p>
         )}
-        <div className="rounded-md bg-primary/10 h-96 w-full lg:col-span-2">
+        <div className="rounded-md bg-primary/10 h-96 lg:h-[32rem] w-full lg:col-span-2">
           <Maps
             onMarkerChange={(e) => handleMarker(e)}
             markers={[

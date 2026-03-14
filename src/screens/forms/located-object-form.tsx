@@ -66,6 +66,7 @@ export default function LocatedObjectForm({ id, onSubmit }: LocatedObjectFormPro
       number: '',
       city: '',
       cep: '',
+      distance: undefined,
       latitude: undefined,
       longitude: undefined,
       explosive: undefined,
@@ -106,6 +107,7 @@ export default function LocatedObjectForm({ id, onSubmit }: LocatedObjectFormPro
         form.setValue('objectFormat', res.data.objectFormat)
         form.setValue('latitude', res.data.latitude)
         form.setValue('longitude', res.data.longitude)
+        form.setValue('distance', res.data.distance)
 
         setStreet(res.data.street || '')
         setNumber(res.data.number || '')
@@ -268,9 +270,21 @@ export default function LocatedObjectForm({ id, onSubmit }: LocatedObjectFormPro
 
         <FormField
           control={form.control}
-          name="objectFormat.id"
+          name="distance"
           render={({ field }) => (
             <FormItem>
+              <FormLabel>Distância para probabilidade (m)</FormLabel>
+              <Input type="number" placeholder="Distância para probabilidade (m)" {...field} />
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="objectFormat.id"
+          render={({ field }) => (
+            <FormItem className="lg:col-span-2">
               <FormLabel>Formato do objeto</FormLabel>
               <SelectWithDynamicOptions
                 tag="objectFormats"
@@ -333,7 +347,7 @@ export default function LocatedObjectForm({ id, onSubmit }: LocatedObjectFormPro
         {latError && (
           <p className="text-[0.8rem] font-medium text-destructive">Marque a localização no mapa</p>
         )}
-        <div className="rounded-md bg-primary/10 h-96 w-full lg:col-span-2">
+        <div className="rounded-md bg-primary/10 h-96 lg:h-[32rem] w-full lg:col-span-2">
           <Maps
             onMarkerChange={handleMarker}
             initialMarker={{ lat: form.watch('latitude'), lng: form.watch('longitude') }}

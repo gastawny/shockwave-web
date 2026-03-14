@@ -20,6 +20,26 @@ export const PostExplosionSchema = (method: OptionalIfType) =>
         .min(1, { message: 'Nome é obrigatório' }),
       method
     ),
+    street: optionalIf(
+      z.string({ required_error: 'Rua é obrigatória' }).min(1, { message: 'Rua é obrigatória' }),
+      method
+    ),
+    number: optionalIf(
+      z
+        .string({ required_error: 'Número é obrigatório' })
+        .min(1, { message: 'Número é obrigatório' }),
+      method
+    ),
+    city: optionalIf(
+      z
+        .string({ required_error: 'Cidade é obrigatória' })
+        .min(1, { message: 'Cidade é obrigatória' }),
+      method
+    ),
+    cep: optionalIf(
+      z.string({ required_error: 'CEP é obrigatório' }).min(1, { message: 'CEP é obrigatório' }),
+      method
+    ),
     latitude: optionalIf(
       z.number({
         required_error: 'Latitude é obrigatória',
