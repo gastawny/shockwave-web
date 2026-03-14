@@ -40,7 +40,7 @@ export function EditExplosiveParameters() {
   const { data: explosiveParameters } = useQuery<Parameter[]>({
     queryKey: ['explosive-parameters'],
     queryFn: async () =>
-      await fetcher(`/api/handlers/generic/parameters/getTableParameters`, {
+      await fetcher('/api/handlers/generic/parameters/getTableParameters', {
         method: 'POST',
         body: JSON.stringify({ tableName: 'explosives' }),
         justReturnResponse: false,

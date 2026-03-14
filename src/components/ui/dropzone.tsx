@@ -418,7 +418,7 @@ const useDropzone = <TUploadRes, TUploadError = string>(
         if (!url) {
           const placeholder = new File([''], it.fileName)
           processed.push({
-            id,
+            id: localId,
             fileName: it.fileName,
             file: placeholder,
             status: 'success',
@@ -455,7 +455,7 @@ const useDropzone = <TUploadRes, TUploadError = string>(
         } catch (e) {
           const placeholder = new File([''], it.fileName)
           processed.push({
-            id,
+            id: localId,
             fileName: it.fileName,
             file: placeholder,
             status: 'error',
@@ -481,8 +481,8 @@ const useDropzone = <TUploadRes, TUploadError = string>(
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const DropZoneContext = createContext<UseDropzoneReturn<any, any>>({
-  getRootProps: () => ({} as never),
-  getInputProps: () => ({} as never),
+  getRootProps: () => ({}) as never,
+  getInputProps: () => ({}) as never,
   onRemoveFile: async () => {},
   onRetry: async () => {},
   canRetry: () => false,
@@ -523,7 +523,6 @@ const DropZoneArea = forwardRef<HTMLDivElement, DropZoneAreaProps>(
     const { onFocus, onBlur, onDragEnter, onDragLeave, onDrop, ref } = context.getRootProps()
 
     return (
-      // eslint-disable-next-line jsx-a11y/no-static-element-interactions
       <div
         ref={(instance) => {
           ref.current = instance
@@ -900,7 +899,6 @@ const DropzoneImagePreview = ({
   return (
     <>
       {file.status === 'success' && (
-        // eslint-disable-next-line @next/next/no-img-element
         <img
           src={String(file.result ?? '')}
           alt={`uploaded-${file.fileName}`}
@@ -914,7 +912,6 @@ const DropzoneImagePreview = ({
             <DialogTitle className="text-sm">{file.fileName}</DialogTitle>
           </DialogHeader>
           {src && (
-            // eslint-disable-next-line @next/next/no-img-element
             <img src={src} className="max-w-full max-h-[80vh] object-contain" />
           )}
         </DialogContent>

@@ -19,6 +19,7 @@ export default function POPsPage() {
       <h1 className="ml-10 lg:ml-0 text-xl lg:text-2xl font-bold mb-4">POPs</h1>
       {pops.map((pop) => (
         <Button
+          key={pop.code}
           variant="outline"
           size="lg"
           className="w-full"

@@ -83,7 +83,7 @@ export default function ExplosiveDataForm({ method, explosiveId, onSaved }: Prop
     const tmpl: any = templateQuery.data
     const templateParams: any[] = Array.isArray(tmpl)
       ? tmpl
-      : tmpl?.parametersValues ?? tmpl?.parameters ?? []
+      : (tmpl?.parametersValues ?? tmpl?.parameters ?? [])
 
     const baseRows: ExplosiveParamValue[] = templateParams.map((p: any) => ({
       parameter_id: p.parameter_id ?? p.id,
@@ -96,7 +96,7 @@ export default function ExplosiveDataForm({ method, explosiveId, onSaved }: Prop
     const resp = dataQuery.data
     const dataParams: any[] = Array.isArray(resp)
       ? resp
-      : resp?.parametersValues ?? resp?.data ?? []
+      : (resp?.parametersValues ?? resp?.data ?? [])
 
     const valuesByParamId = new Map<number, any>()
     dataParams.forEach((d: any) => valuesByParamId.set(d.parameter_id, d))
