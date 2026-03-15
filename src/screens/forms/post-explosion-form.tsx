@@ -363,6 +363,8 @@ export function PostExplosionForm({ id, onSubmit }: PostExplosionFormProps) {
         )}
         <div className="rounded-md bg-primary/10 h-96 lg:h-[32rem] w-full lg:col-span-2">
           <Maps
+            initialCenter={{ lat: form.getValues('latitude'), lng: form.getValues('longitude') }}
+            zoom={id ? 15 : 12}
             onMarkerChange={(e) => handleMarker(e)}
             markers={[
               {

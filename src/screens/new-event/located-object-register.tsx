@@ -30,7 +30,7 @@ export function LocatedObjectRegister() {
         variant: 'destructive',
       })
 
-      return
+      return null
     }
 
     toast({
@@ -43,6 +43,8 @@ export function LocatedObjectRegister() {
     if (!id) {
       router.push(`${pathname}?id=${res.data.id}`)
     }
+
+    return res.data.id ?? id
   }
 
   return <LocatedObjectForm id={id} onSubmit={onSubmit} />

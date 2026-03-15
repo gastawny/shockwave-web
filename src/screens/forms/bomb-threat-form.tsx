@@ -404,7 +404,13 @@ export function BombThreatForm({ id, onSubmit }: BombThreatFormProps) {
                   : 'Preencha os dados para criar um novo objeto localizado'}
               </DialogDescription>
             </DialogHeader>
-            <LocatedObjectForm id={modalObjectLocated.id} onSubmit={mutationLocatedObject.mutate} />
+            <LocatedObjectForm
+              id={modalObjectLocated.id}
+              onSubmit={async (data) => {
+                const res = await mutationLocatedObject.mutateAsync(data)
+                return res?.id ?? data.id ?? null
+              }}
+            />
           </ScrollArea>
         </DialogContent>
       </Dialog>

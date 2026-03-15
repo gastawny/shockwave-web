@@ -1,6 +1,6 @@
 'use client'
 
-import { Maps, GeoLocation } from '@/components/maps'
+import { CircleConfig, Maps, GeoLocation } from '@/components/maps'
 import { SelectWithDynamicOptions } from '@/components/select-with-dynamic-options'
 import { Button } from '@/components/ui/button'
 import {
@@ -52,7 +52,7 @@ import { useFieldArray, useForm } from 'react-hook-form'
 
 type LocatedObjectFormProps = {
   id?: string | null
-  onSubmit: (data: LocatedObject) => void
+  onSubmit: (data: LocatedObject) => Promise<string | null | undefined> | string | null | undefined
 }
 
 export default function LocatedObjectForm({ id, onSubmit }: LocatedObjectFormProps) {
@@ -80,7 +80,10 @@ export default function LocatedObjectForm({ id, onSubmit }: LocatedObjectFormPro
   const [number, setNumber] = useState('')
   const [city, setCity] = useState('')
   const [cep, setCep] = useState('')
+  const [circles, setCircles] = useState<CircleConfig[]>([])
+  const [mapKey, setMapKey] = useState(0)
   const isUpdatingFromMap = useRef(false)
+  const hasLoadedCircles = useRef(false)
 
   const { fields: objectFormatParameterValuesFields, replace } = useFieldArray({
     control: form.control,
@@ -88,6 +91,26 @@ export default function LocatedObjectForm({ id, onSubmit }: LocatedObjectFormPro
   })
 
   const latError = form.formState.errors.latitude
+  const latitude = form.watch('latitude')
+  const longitude = form.watch('longitude')
+
+  async function loadCircles(locatedObjectId: string, lat: number, lng: number) {
+    const circlesResponse = await http(`/api/locatedObjects/getCircles/${locatedObjectId}`)
+
+    if (!circlesResponse.ok) return
+
+    setCircles(
+      circlesResponse.data.map((circle: { name: string; radius: number; color: string }) => ({
+        label: circle.name,
+        center: { lat, lng },
+        radius: circle.radius,
+        fillColor: circle.color,
+        strokeColor: circle.color,
+        strokeWeight: 2,
+        fillOpacity: 0.2,
+      }))
+    )
+  }
 
   useEffect(() => {
     ;(async () => {
@@ -116,6 +139,15 @@ export default function LocatedObjectForm({ id, onSubmit }: LocatedObjectFormPro
 
         if (res.data.objectFormatParameterValues?.length) {
           replace(res.data.objectFormatParameterValues)
+        }
+
+        if (!hasLoadedCircles.current) {
+          const lat = res.data.latitude || 0
+          const lng = res.data.longitude || 0
+
+          await loadCircles(id, lat, lng)
+
+          hasLoadedCircles.current = true
         }
       }
     })()
@@ -216,10 +248,21 @@ export default function LocatedObjectForm({ id, onSubmit }: LocatedObjectFormPro
     }
   }
 
+  async function submit(data: LocatedObject) {
+    const savedId = await onSubmit(data)
+
+    if (!savedId) return
+
+    setCircles([])
+    setMapKey((prev) => prev + 1)
+    await loadCircles(savedId, data.latitude || 0, data.longitude || 0)
+    hasLoadedCircles.current = true
+  }
+
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(submit)}
         className="full grid grid-cols-1 lg:grid-cols-2 gap-4"
       >
         <FormField
@@ -349,8 +392,12 @@ export default function LocatedObjectForm({ id, onSubmit }: LocatedObjectFormPro
         )}
         <div className="rounded-md bg-primary/10 h-96 lg:h-[32rem] w-full lg:col-span-2">
           <Maps
+            key={mapKey}
+            initialCenter={{ lat: form.getValues('latitude'), lng: form.getValues('longitude') }}
             onMarkerChange={handleMarker}
-            initialMarker={{ lat: form.watch('latitude'), lng: form.watch('longitude') }}
+            zoom={id ? 15 : 12}
+            markers={[{ lat: latitude || 0, lng: longitude || 0 }]}
+            circles={circles}
           />
         </div>
         <Separator className="lg:col-span-2" />
