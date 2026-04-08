@@ -76,6 +76,11 @@ export const sideBarData = {
           title: 'Ameaças de Bomba',
           url: '/reports/bomb-threat',
         },
+        {
+          title: 'Logs',
+          url: '/reports/audit-logs',
+          admin: true,
+        },
       ],
     },
   ],

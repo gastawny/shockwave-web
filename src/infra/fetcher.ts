@@ -1,5 +1,4 @@
 import { API_URL } from '@/config/variables'
-import { http, RequestOptions } from './http'
 import { cookies } from './cookies'
 
 interface FetcherOptions extends Omit<RequestInit, 'next'> {

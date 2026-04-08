@@ -37,6 +37,7 @@ export interface DataTableProps<TData, TValue> {
   }
   className?: React.HTMLAttributes<HTMLDivElement>['className']
   type: (typeof Tags)[number]
+  extraActions?: (row: TData) => React.ReactNode
 }
 
 export function DataTable<TData, TValue>({
@@ -45,6 +46,7 @@ export function DataTable<TData, TValue>({
   dataFilters,
   className,
   type,
+  extraActions,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
@@ -123,6 +125,7 @@ export function DataTable<TData, TValue>({
                     </TableCell>
                   ))}
                   <TableCell className="flex gap-2 justify-end">
+                    {extraActions?.(row.original)}
                     {infosModal[type]({ method: 'PUT', data: row.original })}
                     {!['objectFormats'].includes(type) && (
                       <Button
