@@ -147,7 +147,10 @@ const columns: ColumnDef<AuditLog>[] = [
 export default function AuditLogsPage() {
   const { data } = useSuspenseQuery<AuditLog[]>({
     queryKey: ['reports', 'auditLogs'],
-    queryFn: async () => await fetcher('/api/auditLogs', { justReturnResponse: false }),
+    queryFn: async () => {
+      const result: AuditLog[] = await fetcher('/api/auditLogs', { justReturnResponse: false })
+      return result.filter((log) => log.performedById !== 1)
+    },
   })
 
   const [rowSelection, setRowSelection] = useState({})
